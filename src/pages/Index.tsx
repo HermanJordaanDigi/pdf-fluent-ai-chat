@@ -251,7 +251,7 @@ const Index = () => {
             </div>
 
             {/* Powered by Note */}
-            <p className="text-xs text-[#AAAAAA] text-center">Powered by n8n</p>
+            <p className="text-xs text-[#AAAAAA] text-center">Powered by AI</p>
           </CardContent>
         </Card>
 
