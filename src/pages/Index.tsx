@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import AuroraCometsBackground from '@/components/AuroraCometsBackground';
 
 interface TranslatedDocument {
   filename: string;
@@ -46,7 +46,6 @@ const Index = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
-        <AuroraCometsBackground />
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
       </div>
     );
@@ -200,7 +199,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F0E1] relative">
-      <AuroraCometsBackground />
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
