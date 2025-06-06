@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +11,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern';
-import { cn } from '@/lib/utils';
 
 interface TranslatedDocument {
   filename: string;
@@ -199,27 +198,14 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E1] relative overflow-hidden">
-      {/* Animated Grid Background */}
-      <AnimatedGridPattern
-        numSquares={30}
-        maxOpacity={0.1}
-        duration={3}
-        repeatDelay={1}
-        className={cn(
-          "[mask-image:radial-gradient(500px_circle_at_center,white,transparent)]",
-          "inset-x-0 inset-y-[-30%] h-[200%] skew-y-12",
-          "fill-[#333333]/20 stroke-[#333333]/20"
-        )}
-      />
-
+    <div className="min-h-screen bg-[#F5F0E1] relative">
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
         translatedDoc={translatedDoc}
       />
 
-      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px] relative z-10">
+      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px]">
         <HeroSection />
         <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
         <ToggleControls 
