@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import SilkShaderBackground from '@/components/SilkShaderBackground';
 
 interface TranslatedDocument {
   filename: string;
@@ -199,8 +199,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F0E1] relative">
-      <SilkShaderBackground />
-      
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
