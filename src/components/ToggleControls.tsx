@@ -18,7 +18,7 @@ const ToggleControls = ({
   setGenerateInsights 
 }: ToggleControlsProps) => {
   return (
-    <Card className="mb-8 shadow-lg border-0 bg-white/95 backdrop-blur-sm">
+    <Card className="mb-8 shadow-lg border-0">
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <div className="flex items-center space-x-2">
