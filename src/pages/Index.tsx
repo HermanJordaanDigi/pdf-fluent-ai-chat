@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import { Particles } from '@/components/ui/particles';
 
 interface TranslatedDocument {
   filename: string;
@@ -199,22 +199,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F0E1] relative">
-      <Particles
-        className="absolute inset-0"
-        quantity={60}
-        ease={80}
-        color="#999999"
-        size={0.8}
-        staticity={30}
-      />
-      
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
         translatedDoc={translatedDoc}
       />
 
-      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px] relative z-10">
+      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px]">
         <HeroSection />
         <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
         <ToggleControls 
