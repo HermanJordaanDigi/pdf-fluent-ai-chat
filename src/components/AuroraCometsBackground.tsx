@@ -13,15 +13,22 @@ const AuroraCometsBackground = () => {
   } | null>(null);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    console.log('AuroraCometsBackground: Starting initialization...');
+    
+    if (!mountRef.current) {
+      console.warn('AuroraCometsBackground: Mount ref not available');
+      return;
+    }
 
     // Check for WebGL support
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     if (!gl) {
-      console.warn('WebGL not supported, aurora comets effect disabled');
+      console.warn('AuroraCometsBackground: WebGL not supported, aurora comets effect disabled');
       return;
     }
+
+    console.log('AuroraCometsBackground: WebGL supported, creating scene...');
 
     // Create Three.js scene
     const scene = new THREE.Scene();
@@ -38,10 +45,12 @@ const AuroraCometsBackground = () => {
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(window.innerWidth, window.innerHeight);
     
+    console.log('AuroraCometsBackground: Renderer created, adding to DOM...');
+    
     // Add canvas to mount point
     mountRef.current.appendChild(renderer.domElement);
 
-    // Shader material
+    // Improved shader material with better visibility
     const material = new THREE.ShaderMaterial({
       transparent: true,
       uniforms: {
@@ -56,8 +65,6 @@ const AuroraCometsBackground = () => {
       fragmentShader: `
         uniform float iTime;
         uniform vec2 iResolution;
-
-        #define NUM_OCTAVES 3
 
         float rand(vec2 n) { 
           return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -77,13 +84,13 @@ const AuroraCometsBackground = () => {
 
         float fbm(vec2 x) {
           float v = 0.0;
-          float a = 0.3;
+          float a = 0.5;
           vec2 shift = vec2(100);
           mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
-          for (int i = 0; i < NUM_OCTAVES; ++i) {
+          for (int i = 0; i < 4; ++i) {
             v += a * noise(x);
             x = rot * x * 2.0 + shift;
-            a *= 0.4;
+            a *= 0.5;
           }
           return v;
         }
@@ -92,53 +99,73 @@ const AuroraCometsBackground = () => {
           vec2 fragCoord = gl_FragCoord.xy;
           vec2 uv = fragCoord / iResolution.xy;
 
+          // Enhanced movement with more visible effects
           vec2 shake = vec2(
-            sin(iTime * 1.2) * 0.005,
-            cos(iTime * 2.1) * 0.005
+            sin(iTime * 1.5) * 0.01,
+            cos(iTime * 2.0) * 0.01
           );
 
           vec2 p = ((fragCoord + shake * iResolution) - iResolution * 0.5) 
                    / iResolution.y 
-                   * mat2(6.0, -4.0, 4.0, 6.0);
+                   * mat2(4.0, -3.0, 3.0, 4.0);
 
           vec4 o = vec4(0.0);
 
-          float f = 2.0 + fbm(p + vec2(iTime * 5.0, 0.0)) * 0.5;
+          float f = 1.5 + fbm(p + vec2(iTime * 3.0, 0.0)) * 0.8;
 
-          for (float i = 0.0; i < 35.0; i += 1.0) {
+          // More visible comets with enhanced brightness
+          for (float i = 0.0; i < 25.0; i += 1.0) {
             vec2 v = p 
-                   + cos(i * i + (iTime + p.x * 0.08) * 0.025 + i * vec2(13.0, 11.0)) * 3.5
-                   + vec2(sin(iTime * 3.0 + i) * 0.003, cos(iTime * 3.5 - i) * 0.003);
+                   + cos(i * i + (iTime + p.x * 0.1) * 0.03 + i * vec2(13.0, 11.0)) * 2.5
+                   + vec2(sin(iTime * 2.0 + i) * 0.008, cos(iTime * 2.5 - i) * 0.008);
 
-            float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - (i / 35.0)); 
+            float tailNoise = fbm(v + vec2(iTime * 0.8, i)) * 0.5; 
 
+            // Brighter, more visible aurora colors
             vec4 auroraColors = vec4(
-              0.1 + 0.3 * sin(i * 0.2 + iTime * 0.4),
-              0.3 + 0.5 * cos(i * 0.3 + iTime * 0.5),
-              0.7 + 0.3 * sin(i * 0.4 + iTime * 0.3),
+              0.3 + 0.7 * sin(i * 0.3 + iTime * 0.6),
+              0.5 + 0.8 * cos(i * 0.4 + iTime * 0.7),
+              0.8 + 0.5 * sin(i * 0.5 + iTime * 0.4),
               1.0
             );
 
             vec4 contribution = auroraColors 
-                                * exp(sin(i * i + iTime * 0.8)) 
-                                / length(max(v, vec2(v.x * f * 0.015, v.y * 1.5)));
+                                * exp(sin(i * i + iTime * 1.2)) 
+                                / length(max(v, vec2(v.x * f * 0.02, v.y * 1.2)));
 
-            float thinnessFactor = smoothstep(0.0, 1.0, i / 35.0) * 0.6;
-            o += contribution * (1.0 + tailNoise * 0.8) * thinnessFactor;
+            float visibility = smoothstep(0.0, 1.0, i / 25.0) * 0.8;
+            o += contribution * (1.0 + tailNoise) * visibility;
           }
 
-          o = tanh(pow(o / 100.0, vec4(1.6)));
-          o *= 1.5;
+          // Enhanced brightness and contrast
+          o = tanh(pow(o / 80.0, vec4(1.4)));
+          o *= 4.0; // Significantly brighter
 
-          gl_FragColor = vec4(o.rgb, o.a);
+          // Ensure visibility against beige background
+          o.rgb = max(o.rgb, vec3(0.05));
+
+          gl_FragColor = vec4(o.rgb, o.a * 0.8);
         }
       `
     });
+
+    console.log('AuroraCometsBackground: Shader material created');
+
+    // Check for shader compilation errors
+    const checkShaderErrors = () => {
+      const gl = renderer.getContext();
+      const error = gl.getError();
+      if (error !== gl.NO_ERROR) {
+        console.error('AuroraCometsBackground: WebGL error:', error);
+      }
+    };
 
     // Create fullscreen quad
     const geometry = new THREE.PlaneGeometry(2, 2);
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
+
+    console.log('AuroraCometsBackground: Mesh added to scene');
 
     // Store references
     sceneRef.current = {
@@ -149,13 +176,19 @@ const AuroraCometsBackground = () => {
       animationId: null
     };
 
-    // Animation loop
+    // Animation loop with error checking
     const animate = () => {
       if (!sceneRef.current) return;
       
       sceneRef.current.animationId = requestAnimationFrame(animate);
       sceneRef.current.material.uniforms.iTime.value += 0.016;
-      sceneRef.current.renderer.render(sceneRef.current.scene, sceneRef.current.camera);
+      
+      try {
+        sceneRef.current.renderer.render(sceneRef.current.scene, sceneRef.current.camera);
+        checkShaderErrors();
+      } catch (error) {
+        console.error('AuroraCometsBackground: Render error:', error);
+      }
     };
 
     // Handle resize
@@ -167,13 +200,19 @@ const AuroraCometsBackground = () => {
       
       sceneRef.current.renderer.setSize(width, height);
       sceneRef.current.material.uniforms.iResolution.value.set(width, height);
+      
+      console.log(`AuroraCometsBackground: Resized to ${width}x${height}`);
     };
 
     window.addEventListener('resize', handleResize);
+    
+    console.log('AuroraCometsBackground: Starting animation loop...');
     animate();
 
     // Cleanup function
     return () => {
+      console.log('AuroraCometsBackground: Cleaning up...');
+      
       window.removeEventListener('resize', handleResize);
       
       if (sceneRef.current) {
