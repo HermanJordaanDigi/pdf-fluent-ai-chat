@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft } from 'lucide-react';
+import AuroraCometsBackground from '@/components/AuroraCometsBackground';
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -41,6 +41,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center p-4">
+      <AuroraCometsBackground />
       <div className="w-full max-w-md">
         <div className="flex items-center mb-6">
           <Button 
