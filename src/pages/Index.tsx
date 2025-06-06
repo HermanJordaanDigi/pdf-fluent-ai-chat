@@ -10,7 +10,8 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import FlowingLinesBackground from '@/components/FlowingLinesBackground';
+import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern';
+import { cn } from '@/lib/utils';
 
 interface TranslatedDocument {
   filename: string;
@@ -198,9 +199,20 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E1] relative">
-      <FlowingLinesBackground />
-      
+    <div className="min-h-screen bg-[#F5F0E1] relative overflow-hidden">
+      {/* Animated Grid Background */}
+      <AnimatedGridPattern
+        numSquares={30}
+        maxOpacity={0.1}
+        duration={3}
+        repeatDelay={1}
+        className={cn(
+          "[mask-image:radial-gradient(500px_circle_at_center,white,transparent)]",
+          "inset-x-0 inset-y-[-30%] h-[200%] skew-y-12",
+          "fill-[#333333]/20 stroke-[#333333]/20"
+        )}
+      />
+
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
