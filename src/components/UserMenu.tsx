@@ -1,0 +1,45 @@
+
+import React from 'react';
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut, FileText } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+
+const UserMenu = () => {
+  const { user, signOut } = useAuth();
+
+  if (!user) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="text-[#333333] hover:bg-[#EEEEEE] p-2">
+          <User className="h-4 w-4 mr-2" />
+          {user.email}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem className="cursor-pointer">
+          <FileText className="h-4 w-4 mr-2" />
+          My Translations
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem 
+          className="cursor-pointer text-red-600 focus:text-red-600"
+          onClick={signOut}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+export default UserMenu;
