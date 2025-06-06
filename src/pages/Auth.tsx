@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FileText, ArrowLeft } from 'lucide-react';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -40,20 +40,21 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 relative">
+      <AnimatedBackground />
+      <div className="w-full max-w-md relative z-10">
         <div className="flex items-center mb-6">
           <Button 
             variant="ghost" 
             onClick={() => navigate('/')}
-            className="text-[#333333] hover:bg-[#EEEEEE] p-2"
+            className="text-white hover:bg-white/10 p-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Button>
         </div>
 
-        <Card className="shadow-lg border-0">
+        <Card className="shadow-lg border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center">
             <div className="flex items-center justify-center mb-4">
               <FileText className="h-8 w-8 text-[#333333]" />

@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 const HeroSection = () => {
   return (
-    <Card className="mb-8 shadow-lg border-0">
+    <Card className="mb-8 shadow-lg border-0 bg-white/95 backdrop-blur-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-[#333333] mb-2">
           Translate Your PDFs from Portuguese to English Instantly

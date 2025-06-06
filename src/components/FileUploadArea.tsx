@@ -25,7 +25,7 @@ const FileUploadArea = ({ onFileUpload, isUploading }: FileUploadAreaProps) => {
   };
 
   return (
-    <Card className="mb-8 shadow-lg border-0">
+    <Card className="mb-8 shadow-lg border-0 bg-white/95 backdrop-blur-sm">
       <CardContent>
         <div 
           className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA]" 

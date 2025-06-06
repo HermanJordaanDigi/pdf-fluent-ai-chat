@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +10,7 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 interface TranslatedDocument {
   filename: string;
@@ -45,8 +45,9 @@ const Index = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
+      <div className="min-h-screen bg-transparent flex items-center justify-center relative">
+        <AnimatedBackground />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
       </div>
     );
   }
@@ -75,10 +76,8 @@ const Index = () => {
     setIsUploading(true);
 
     try {
-      // Simulate API call to Webhook A for translation
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Mock translated document
       const translatedBlob = new Blob(['Mock translated PDF content'], { type: 'application/pdf' });
       const translatedDoc: TranslatedDocument = {
         filename: file.name.replace('.pdf', '_en.pdf'),
@@ -87,7 +86,6 @@ const Index = () => {
       };
       setTranslatedDoc(translatedDoc);
 
-      // Save translation to database
       await supabase.from('translations').insert({
         user_id: user.id,
         original_filename: file.name,
@@ -98,7 +96,6 @@ const Index = () => {
         insights: generateInsights ? insights : null
       });
 
-      // Process summary and insights if toggles are active
       if (generateSummary) {
         handleGenerateSummary();
       }
@@ -124,7 +121,6 @@ const Index = () => {
   const handleGenerateSummary = async () => {
     setIsProcessingSummary(true);
     try {
-      // Simulate API call to Webhook B
       await new Promise(resolve => setTimeout(resolve, 2000));
       setSummary("This document discusses the implementation of artificial intelligence in modern business processes. It covers key strategies for digital transformation, including workflow automation, data analysis, and customer experience enhancement. The document emphasizes the importance of gradual implementation and employee training to ensure successful AI adoption.");
     } catch (error) {
@@ -141,7 +137,6 @@ const Index = () => {
   const handleGenerateInsights = async () => {
     setIsProcessingInsights(true);
     try {
-      // Simulate API call to Webhook C
       await new Promise(resolve => setTimeout(resolve, 2000));
       setInsights([
         "AI implementation requires careful planning and stakeholder buy-in",
@@ -188,24 +183,28 @@ const Index = () => {
 
   if (chatMode) {
     return (
-      <ChatInterface
-        translatedDoc={translatedDoc}
-        chatMessages={chatMessages}
-        setChatMessages={setChatMessages}
-        onBack={() => setChatMode(false)}
-      />
+      <div className="relative">
+        <AnimatedBackground />
+        <ChatInterface
+          translatedDoc={translatedDoc}
+          chatMessages={chatMessages}
+          setChatMessages={setChatMessages}
+          onBack={() => setChatMode(false)}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E1] relative">
+    <div className="min-h-screen bg-transparent relative">
+      <AnimatedBackground />
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
         translatedDoc={translatedDoc}
       />
 
-      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px]">
+      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px] relative z-10">
         <HeroSection />
         <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
         <ToggleControls 
@@ -230,14 +229,13 @@ const Index = () => {
 
         {user && !translatedDoc && <UserDashboard />}
 
-        {/* Footer */}
-        <footer className="mt-16 py-8 border-t border-[#DDDDDD]">
+        <footer className="mt-16 py-8 border-t border-white/20">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-4">
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">About</a>
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Contact</a>
+            <a href="#" className="text-white/70 hover:text-white transition-colors">About</a>
+            <a href="#" className="text-white/70 hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" className="text-white/70 hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-center text-[#AAAAAA] text-sm">© 2025 Activflow</p>
+          <p className="text-center text-white/50 text-sm">© 2025 Activflow</p>
         </footer>
       </div>
     </div>
