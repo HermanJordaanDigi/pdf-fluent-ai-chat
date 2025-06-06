@@ -23,7 +23,7 @@ const FileUploadArea = ({
   };
   return <Card className="mb-8 shadow-lg border-0">
       <CardContent className="py-[10px] px-[2px] my-0">
-        <div className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA]" onDragOver={handleDragOver} onDrop={handleDrop}>
+        <div onDragOver={handleDragOver} onDrop={handleDrop} className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA] mx-[6px]">
           <Upload className="h-8 w-8 text-[#333333] mx-auto mb-4" />
           <p className="text-[#333333] mb-4">
             Drop PDF here or click to browse
