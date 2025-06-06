@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import UserMenu from '@/components/UserMenu';
 import UserDashboard from '@/components/UserDashboard';
-
 interface TranslatedDocument {
   filename: string;
   size: string;
@@ -23,9 +22,11 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
 }
-
 const Index = () => {
-  const { user, loading: authLoading } = useAuth();
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
   const navigate = useNavigate();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -44,15 +45,11 @@ const Index = () => {
   const {
     toast
   } = useToast();
-
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
+    return <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
-      </div>
-    );
+      </div>;
   }
-
   const handleFileUpload = async (file: File) => {
     if (!file || file.type !== 'application/pdf') {
       toast({
@@ -62,7 +59,6 @@ const Index = () => {
       });
       return;
     }
-
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -72,16 +68,16 @@ const Index = () => {
       navigate('/auth');
       return;
     }
-
     setUploadedFile(file);
     setIsUploading(true);
-    
     try {
       // Simulate API call to Webhook A for translation
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       // Mock translated document
-      const translatedBlob = new Blob(['Mock translated PDF content'], { type: 'application/pdf' });
+      const translatedBlob = new Blob(['Mock translated PDF content'], {
+        type: 'application/pdf'
+      });
       const translatedDoc: TranslatedDocument = {
         filename: file.name.replace('.pdf', '_en.pdf'),
         size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
@@ -107,7 +103,6 @@ const Index = () => {
       if (generateInsights) {
         handleGenerateInsights();
       }
-      
       toast({
         title: "Translation Complete",
         description: "Your PDF has been successfully translated to English."
@@ -122,7 +117,6 @@ const Index = () => {
       setIsUploading(false);
     }
   };
-
   const handleGenerateSummary = async () => {
     setIsProcessingSummary(true);
     try {
@@ -139,7 +133,6 @@ const Index = () => {
       setIsProcessingSummary(false);
     }
   };
-
   const handleGenerateInsights = async () => {
     setIsProcessingInsights(true);
     try {
@@ -156,7 +149,6 @@ const Index = () => {
       setIsProcessingInsights(false);
     }
   };
-
   const handleSendMessage = async () => {
     if (!chatInput.trim() || !translatedDoc) return;
     const userMessage: ChatMessage = {
@@ -188,7 +180,6 @@ const Index = () => {
       setIsSendingMessage(false);
     }
   };
-
   const handleDownload = () => {
     if (!translatedDoc) return;
     const url = URL.createObjectURL(translatedDoc.blob);
@@ -200,11 +191,9 @@ const Index = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
@@ -212,7 +201,6 @@ const Index = () => {
       handleFileUpload(files[0]);
     }
   };
-
   const initializeChat = () => {
     setChatMode(true);
     if (chatMessages.length === 0) {
@@ -225,10 +213,8 @@ const Index = () => {
       setChatMessages([systemMessage]);
     }
   };
-
   if (chatMode) {
-    return (
-      <div className="min-h-screen bg-[#F5F0E1] flex flex-col">
+    return <div className="min-h-screen bg-[#F5F0E1] flex flex-col">
         {/* Chat Header */}
         <div className="bg-white shadow-sm border-b border-gray-200 p-4">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -263,12 +249,9 @@ const Index = () => {
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-[#F5F0E1] relative">
+  return <div className="min-h-screen bg-[#F5F0E1] relative">
       {/* Top Navigation */}
       <div className="absolute top-6 right-6 z-10">
         <div className="flex items-center gap-4">
@@ -276,30 +259,18 @@ const Index = () => {
           <div className="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
             <MessageCircle className="h-4 w-4 text-[#333333]" />
             <span className="text-sm text-[#333333]">Chat Mode</span>
-            <Switch 
-              checked={chatMode} 
-              onCheckedChange={initializeChat} 
-              disabled={!translatedDoc} 
-              className="data-[state=checked]:bg-[#AAAAAA]" 
-            />
+            <Switch checked={chatMode} onCheckedChange={initializeChat} disabled={!translatedDoc} className="data-[state=checked]:bg-[#AAAAAA]" />
           </div>
           
           {/* User Menu or Login Button */}
-          {user ? (
-            <UserMenu />
-          ) : (
-            <Button 
-              onClick={() => navigate('/auth')}
-              className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]"
-            >
+          {user ? <UserMenu /> : <Button onClick={() => navigate('/auth')} className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]">
               <LogIn className="h-4 w-4 mr-2" />
               Sign In
-            </Button>
-          )}
+            </Button>}
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px]">
         {/* Hero Section */}
         <Card className="mb-8 shadow-lg border-0">
           <CardHeader className="text-center">
@@ -312,27 +283,13 @@ const Index = () => {
           </CardHeader>
           <CardContent>
             {/* Upload Area */}
-            <div 
-              className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA]"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-            >
+            <div className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA]" onDragOver={handleDragOver} onDrop={handleDrop}>
               <Upload className="h-8 w-8 text-[#333333] mx-auto mb-4" />
               <p className="text-[#333333] mb-4">
                 Drop PDF here or click to browse
               </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
-                className="hidden"
-              />
-              <Button 
-                onClick={() => fileInputRef.current?.click()} 
-                disabled={isUploading}
-                className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]"
-              >
+              <input ref={fileInputRef} type="file" accept=".pdf" onChange={e => e.target.files?.[0] && handleFileUpload(e.target.files[0])} className="hidden" />
+              <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]">
                 {isUploading ? "Uploading..." : "Upload"}
               </Button>
             </div>
@@ -370,8 +327,7 @@ const Index = () => {
         </Card>
 
         {/* Results Area */}
-        {translatedDoc && (
-          <div className="space-y-6">
+        {translatedDoc && <div className="space-y-6">
             {/* Translated PDF Download */}
             <Card className="shadow-lg border-0">
               <CardHeader>
@@ -422,13 +378,10 @@ const Index = () => {
                     </ul> : null}
                 </CardContent>
               </Card>}
-          </div>
-        )}
+          </div>}
 
         {/* User Dashboard - Show for authenticated users */}
-        {user && !translatedDoc && (
-          <UserDashboard />
-        )}
+        {user && !translatedDoc && <UserDashboard />}
 
         {/* Footer */}
         <footer className="mt-16 py-8 border-t border-[#DDDDDD]">
@@ -440,8 +393,6 @@ const Index = () => {
           <p className="text-center text-[#AAAAAA] text-sm">© 2025 Activflow</p>
         </footer>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
