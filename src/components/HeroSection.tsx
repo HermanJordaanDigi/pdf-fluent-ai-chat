@@ -1,9 +1,30 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave";
+import { Upload } from 'lucide-react';
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onFileUpload: (file: File) => Promise<void>;
+  isUploading: boolean;
+}
+
+const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      onFileUpload(files[0]);
+    }
+  };
+
   return (
     <Card className="mb-8 shadow-lg border-0">
       <CardHeader className="text-center">
@@ -24,6 +45,33 @@ const HeroSection = () => {
           Upload a PDF → Download translated version → Summarize or Chat
         </CardDescription>
       </CardHeader>
+      <CardContent className="py-[10px] px-[2px] my-0">
+        <div 
+          onDragOver={handleDragOver} 
+          onDrop={handleDrop} 
+          className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA] mx-[6px]"
+        >
+          <Upload className="h-8 w-8 text-[#333333] mx-auto mb-4" />
+          <p className="text-[#333333] mb-4">
+            Drop PDF here or click to browse
+          </p>
+          <input 
+            ref={fileInputRef} 
+            type="file" 
+            accept=".pdf" 
+            onChange={e => e.target.files?.[0] && onFileUpload(e.target.files[0])} 
+            className="hidden" 
+          />
+          <Button 
+            onClick={() => fileInputRef.current?.click()} 
+            disabled={isUploading} 
+            className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]"
+          >
+            {isUploading ? "Uploading..." : "Upload"}
+          </Button>
+        </div>
+        <p className="text-xs text-[#AAAAAA] text-center">Powered by AI</p>
+      </CardContent>
     </Card>
   );
 };

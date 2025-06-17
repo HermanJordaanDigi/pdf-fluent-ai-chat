@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import HeroSection from '@/components/HeroSection';
-import FileUploadArea from '@/components/FileUploadArea';
 import ToggleControls from '@/components/ToggleControls';
 import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
+
 interface TranslatedDocument {
   filename: string;
   size: string;
@@ -21,6 +21,7 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
 }
+
 const Index = () => {
   const {
     user,
@@ -178,8 +179,7 @@ const Index = () => {
 
       <div className="flex-1">
         <div className="container mx-auto px-4 max-w-4xl py-[16px]">
-          <HeroSection />
-          <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
+          <HeroSection onFileUpload={handleFileUpload} isUploading={isUploading} />
           <ToggleControls generateSummary={generateSummary} setGenerateSummary={setGenerateSummary} generateInsights={generateInsights} setGenerateInsights={setGenerateInsights} />
 
           {translatedDoc && <TranslationResults translatedDoc={translatedDoc} generateSummary={generateSummary} generateInsights={generateInsights} summary={summary} insights={insights} isProcessingSummary={isProcessingSummary} isProcessingInsights={isProcessingInsights} onDownload={handleDownload} />}
@@ -199,4 +199,5 @@ const Index = () => {
       </div>
     </div>;
 };
+
 export default Index;
