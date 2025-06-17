@@ -47,16 +47,74 @@ export const useInsightsGeneration = () => {
 
       // Wait for the response and parse it
       const data = await response.json();
-      console.log('Insights response data:', data);
+      console.log('🔍 Full webhook response:', data);
+      console.log('🔍 Response type:', typeof data);
+      console.log('🔍 Response keys:', Object.keys(data));
       
-      // Extract insights array from various possible response formats
-      const insightsArray = data.insights || data.key_points || data.points || data.result || data.content || [];
+      // Try multiple parsing strategies to extract insights
+      let insightsArray: string[] = [];
       
-      // Ensure we have an array and process it
-      const processedInsights = Array.isArray(insightsArray) ? insightsArray : [insightsArray].filter(Boolean);
+      // Strategy 1: Direct array field access
+      if (data.insights && Array.isArray(data.insights)) {
+        insightsArray = data.insights;
+        console.log('✅ Found insights in data.insights array');
+      }
+      else if (data.key_points && Array.isArray(data.key_points)) {
+        insightsArray = data.key_points;
+        console.log('✅ Found insights in data.key_points array');
+      }
+      else if (data.points && Array.isArray(data.points)) {
+        insightsArray = data.points;
+        console.log('✅ Found insights in data.points array');
+      }
+      else if (data.result && Array.isArray(data.result)) {
+        insightsArray = data.result;
+        console.log('✅ Found insights in data.result array');
+      }
+      else if (data.content && Array.isArray(data.content)) {
+        insightsArray = data.content;
+        console.log('✅ Found insights in data.content array');
+      }
+      // Strategy 2: If the response is directly an array
+      else if (Array.isArray(data)) {
+        insightsArray = data;
+        console.log('✅ Response data is directly an array');
+      }
+      // Strategy 3: Try to convert string responses to array (split by newlines, bullets, etc.)
+      else if (typeof data === 'string') {
+        insightsArray = data.split('\n').filter(line => line.trim().length > 0);
+        console.log('✅ Converted string response to array by splitting lines');
+      }
+      else if (data.insights && typeof data.insights === 'string') {
+        insightsArray = data.insights.split('\n').filter(line => line.trim().length > 0);
+        console.log('✅ Converted string insights to array');
+      }
+      else if (data.key_points && typeof data.key_points === 'string') {
+        insightsArray = data.key_points.split('\n').filter(line => line.trim().length > 0);
+        console.log('✅ Converted string key_points to array');
+      }
+      // Strategy 4: Look for any string values and try to parse them
+      else {
+        const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
+        if (stringValues.length > 0) {
+          insightsArray = (stringValues[0] as string).split('\n').filter(line => line.trim().length > 0);
+          console.log('✅ Found insights by parsing first long string value');
+        } else {
+          console.log('❌ No suitable insights found in response');
+          insightsArray = ["Insights received but could not extract content. Check console for details."];
+        }
+      }
+      
+      // Clean up the insights array
+      insightsArray = insightsArray
+        .map(insight => insight.trim())
+        .filter(insight => insight.length > 0)
+        .map(insight => insight.replace(/^[-•*]\s*/, '')); // Remove bullet points
+      
+      console.log('📝 Final insights array:', insightsArray);
       
       // Set the insights array to state
-      setInsights(processedInsights);
+      setInsights(insightsArray);
       
       toast({
         title: "Insights Generated",

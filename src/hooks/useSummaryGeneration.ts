@@ -47,10 +47,53 @@ export const useSummaryGeneration = () => {
 
       // Wait for the response and parse it
       const data = await response.json();
-      console.log('Summary response data:', data);
+      console.log('🔍 Full webhook response:', data);
+      console.log('🔍 Response type:', typeof data);
+      console.log('🔍 Response keys:', Object.keys(data));
       
-      // Extract summary text from various possible response formats
-      const summaryText = data.summary || data.text || data.result || data.content || "Summary generated successfully.";
+      // Try multiple parsing strategies to extract the summary text
+      let summaryText = "";
+      
+      // Strategy 1: Direct field access
+      if (data.summary && typeof data.summary === 'string') {
+        summaryText = data.summary;
+        console.log('✅ Found summary in data.summary');
+      }
+      // Strategy 2: Other common field names
+      else if (data.text && typeof data.text === 'string') {
+        summaryText = data.text;
+        console.log('✅ Found summary in data.text');
+      }
+      else if (data.result && typeof data.result === 'string') {
+        summaryText = data.result;
+        console.log('✅ Found summary in data.result');
+      }
+      else if (data.content && typeof data.content === 'string') {
+        summaryText = data.content;
+        console.log('✅ Found summary in data.content');
+      }
+      else if (data.message && typeof data.message === 'string') {
+        summaryText = data.message;
+        console.log('✅ Found summary in data.message');
+      }
+      // Strategy 3: If data itself is a string
+      else if (typeof data === 'string') {
+        summaryText = data;
+        console.log('✅ Response data is directly a string');
+      }
+      // Strategy 4: Try to find any string value in the response
+      else {
+        const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
+        if (stringValues.length > 0) {
+          summaryText = stringValues[0] as string;
+          console.log('✅ Found summary in first long string value');
+        } else {
+          console.log('❌ No suitable summary text found in response');
+          summaryText = "Summary received but could not extract text. Check console for details.";
+        }
+      }
+      
+      console.log('📝 Final summary text:', summaryText);
       
       // Set the summary text to state
       setSummary(summaryText);
