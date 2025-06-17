@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 import UserMenu from '@/components/UserMenu';
 
 interface ChatMessage {
@@ -30,6 +31,7 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
   const [chatInput, setChatInput] = useState("");
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || !translatedDoc) return;
@@ -42,22 +44,49 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
     };
 
     setChatMessages(prev => [...prev, userMessage]);
+    const currentInput = chatInput;
     setChatInput("");
     setIsSendingMessage(true);
 
     try {
-      // Simulate API call to Webhook D
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Convert document blob to base64 for context
+      const arrayBuffer = await translatedDoc.blob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/ask-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: currentInput,
+          document_context: {
+            filename: translatedDoc.filename,
+            content: base64
+          },
+          user_id: user?.id,
+          chat_history: chatMessages.filter(msg => msg.id !== 'system').map(msg => ({
+            role: msg.isUser ? 'user' : 'assistant',
+            content: msg.content
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Chat request failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: `Based on your translated document, I can help you understand the key concepts. Your question about "${chatInput}" relates to the document's discussion of AI implementation strategies and best practices for digital transformation.`,
+        content: data.answer || data.response || data.text || "I received your question and I'm processing it.",
         isUser: false,
         timestamp: new Date()
       };
       
       setChatMessages(prev => [...prev, aiResponse]);
     } catch (error) {
+      console.error('Chat error:', error);
       toast({
         title: "Chat Error",
         description: "Unable to send message. Please try again.",
@@ -104,6 +133,17 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
               </div>
             </div>
           ))}
+          {isSendingMessage && (
+            <div className="flex justify-start">
+              <div className="max-w-xs lg:max-w-md px-4 py-2 rounded-xl shadow-sm bg-white text-[#333333]">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-[#AAAAAA] rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-[#AAAAAA] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-[#AAAAAA] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -9,26 +10,24 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
+
 interface TranslatedDocument {
   filename: string;
   size: string;
   blob: Blob;
 }
+
 interface ChatMessage {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
 }
+
 const Index = () => {
-  const {
-    user,
-    loading: authLoading
-  } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
 
   // State management
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -42,11 +41,13 @@ const Index = () => {
   const [isProcessingInsights, setIsProcessingInsights] = useState(false);
   const [chatMode, setChatMode] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
   if (authLoading) {
     return <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
       </div>;
   }
+
   const handleFileUpload = async (file: File) => {
     if (!file || file.type !== 'application/pdf') {
       toast({
@@ -56,6 +57,7 @@ const Index = () => {
       });
       return;
     }
+
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -65,21 +67,33 @@ const Index = () => {
       navigate('/auth');
       return;
     }
+
     setUploadedFile(file);
     setIsUploading(true);
-    try {
-      // Simulate API call to Webhook A for translation
-      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Mock translated document
-      const translatedBlob = new Blob(['Mock translated PDF content'], {
-        type: 'application/pdf'
+    try {
+      // Call the PDF translation webhook
+      const formData = new FormData();
+      formData.append('pdf', file);
+      formData.append('user_id', user.id);
+
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf', {
+        method: 'POST',
+        body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error(`Translation failed: ${response.statusText}`);
+      }
+
+      // Get the translated PDF blob
+      const translatedBlob = await response.blob();
       const translatedDoc: TranslatedDocument = {
         filename: file.name.replace('.pdf', '_en.pdf'),
-        size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
+        size: `${(translatedBlob.size / 1024 / 1024).toFixed(2)} MB`,
         blob: translatedBlob
       };
+
       setTranslatedDoc(translatedDoc);
 
       // Save translation to database
@@ -89,22 +103,24 @@ const Index = () => {
         translated_filename: translatedDoc.filename,
         file_size: file.size,
         status: 'completed',
-        summary: generateSummary ? summary : null,
-        insights: generateInsights ? insights : null
+        summary: null,
+        insights: null
       });
 
       // Process summary and insights if toggles are active
       if (generateSummary) {
-        handleGenerateSummary();
+        await handleGenerateSummary(translatedDoc);
       }
       if (generateInsights) {
-        handleGenerateInsights();
+        await handleGenerateInsights(translatedDoc);
       }
+
       toast({
         title: "Translation Complete",
         description: "Your PDF has been successfully translated to English."
       });
     } catch (error) {
+      console.error('Translation error:', error);
       toast({
         title: "Translation Failed",
         description: "Unable to translate this PDF. Please try again.",
@@ -114,13 +130,37 @@ const Index = () => {
       setIsUploading(false);
     }
   };
-  const handleGenerateSummary = async () => {
+
+  const handleGenerateSummary = async (document?: TranslatedDocument) => {
+    const docToUse = document || translatedDoc;
+    if (!docToUse) return;
+
     setIsProcessingSummary(true);
     try {
-      // Simulate API call to Webhook B
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setSummary("This document discusses the implementation of artificial intelligence in modern business processes. It covers key strategies for digital transformation, including workflow automation, data analysis, and customer experience enhancement. The document emphasizes the importance of gradual implementation and employee training to ensure successful AI adoption.");
+      // Convert blob to base64 for sending to webhook
+      const arrayBuffer = await docToUse.blob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/summary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: docToUse.filename,
+          content: base64,
+          user_id: user?.id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Summary generation failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setSummary(data.summary || data.text || "Summary generated successfully.");
     } catch (error) {
+      console.error('Summary generation error:', error);
       toast({
         title: "Summary Generation Failed",
         description: "Unable to generate summary. Please try again.",
@@ -130,13 +170,39 @@ const Index = () => {
       setIsProcessingSummary(false);
     }
   };
-  const handleGenerateInsights = async () => {
+
+  const handleGenerateInsights = async (document?: TranslatedDocument) => {
+    const docToUse = document || translatedDoc;
+    if (!docToUse) return;
+
     setIsProcessingInsights(true);
     try {
-      // Simulate API call to Webhook C
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setInsights(["AI implementation requires careful planning and stakeholder buy-in", "Workflow automation can reduce operational costs by up to 30%", "Employee training is crucial for successful digital transformation", "Data quality directly impacts AI system effectiveness", "Gradual implementation reduces risk and improves adoption rates"]);
+      // Convert blob to base64 for sending to webhook
+      const arrayBuffer = await docToUse.blob.arrayBuffer();
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/key-points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filename: docToUse.filename,
+          content: base64,
+          user_id: user?.id
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Insights generation failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      // Handle different possible response formats
+      const insightsArray = data.insights || data.key_points || data.points || [];
+      setInsights(Array.isArray(insightsArray) ? insightsArray : [insightsArray]);
     } catch (error) {
+      console.error('Insights generation error:', error);
       toast({
         title: "Insights Generation Failed",
         description: "Unable to generate insights. Please try again.",
@@ -146,6 +212,7 @@ const Index = () => {
       setIsProcessingInsights(false);
     }
   };
+
   const handleDownload = () => {
     if (!translatedDoc) return;
     const url = URL.createObjectURL(translatedDoc.blob);
@@ -157,6 +224,7 @@ const Index = () => {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
   const initializeChat = () => {
     setChatMode(true);
     if (chatMessages.length === 0) {
@@ -169,18 +237,45 @@ const Index = () => {
       setChatMessages([systemMessage]);
     }
   };
+
   if (chatMode) {
-    return <ChatInterface translatedDoc={translatedDoc} chatMessages={chatMessages} setChatMessages={setChatMessages} onBack={() => setChatMode(false)} />;
+    return <ChatInterface 
+      translatedDoc={translatedDoc} 
+      chatMessages={chatMessages} 
+      setChatMessages={setChatMessages} 
+      onBack={() => setChatMode(false)} 
+    />;
   }
+
   return <div className="min-h-screen bg-[#F5F0E1] flex flex-col">
-      <TopNavigation chatMode={chatMode} onChatModeChange={initializeChat} translatedDoc={translatedDoc} />
+      <TopNavigation 
+        chatMode={chatMode} 
+        onChatModeChange={initializeChat} 
+        translatedDoc={translatedDoc} 
+      />
 
       <div className="flex-1">
         <div className="container mx-auto max-w-4xl px-[16px] py-[16px] my-[6px]">
           <HeroSection onFileUpload={handleFileUpload} isUploading={isUploading} />
-          <ToggleControls generateSummary={generateSummary} setGenerateSummary={setGenerateSummary} generateInsights={generateInsights} setGenerateInsights={setGenerateInsights} />
+          <ToggleControls 
+            generateSummary={generateSummary} 
+            setGenerateSummary={setGenerateSummary} 
+            generateInsights={generateInsights} 
+            setGenerateInsights={setGenerateInsights} 
+          />
 
-          {translatedDoc && <TranslationResults translatedDoc={translatedDoc} generateSummary={generateSummary} generateInsights={generateInsights} summary={summary} insights={insights} isProcessingSummary={isProcessingSummary} isProcessingInsights={isProcessingInsights} onDownload={handleDownload} />}
+          {translatedDoc && 
+            <TranslationResults 
+              translatedDoc={translatedDoc} 
+              generateSummary={generateSummary} 
+              generateInsights={generateInsights} 
+              summary={summary} 
+              insights={insights} 
+              isProcessingSummary={isProcessingSummary} 
+              isProcessingInsights={isProcessingInsights} 
+              onDownload={handleDownload} 
+            />
+          }
 
           {user && !translatedDoc && <UserDashboard />}
 
@@ -197,4 +292,5 @@ const Index = () => {
       </div>
     </div>;
 };
+
 export default Index;
