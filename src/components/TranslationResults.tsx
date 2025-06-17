@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Loader2 } from 'lucide-react';
+import { FileText, Download, Loader2, Sparkles, Lightbulb } from 'lucide-react';
 
 interface TranslatedDocument {
   filename: string;
@@ -19,6 +19,8 @@ interface TranslationResultsProps {
   isProcessingSummary: boolean;
   isProcessingInsights: boolean;
   onDownload: () => void;
+  onGenerateSummary: () => Promise<void>;
+  onGenerateInsights: () => Promise<void>;
 }
 
 const TranslationResults = ({
@@ -29,7 +31,9 @@ const TranslationResults = ({
   insights,
   isProcessingSummary,
   isProcessingInsights,
-  onDownload
+  onDownload,
+  onGenerateSummary,
+  onGenerateInsights
 }: TranslationResultsProps) => {
   return (
     <div className="space-y-6">
@@ -80,7 +84,18 @@ const TranslationResults = ({
               <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg p-4 max-h-48 overflow-y-auto">
                 <p className="text-[#333333] leading-relaxed">{summary}</p>
               </div>
-            ) : null}
+            ) : (
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center">
+                <p className="text-[#666666] mb-4">No summary generated yet</p>
+                <Button 
+                  onClick={onGenerateSummary}
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Summary
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
@@ -116,7 +131,18 @@ const TranslationResults = ({
                   </li>
                 ))}
               </ul>
-            ) : null}
+            ) : (
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center">
+                <p className="text-[#666666] mb-4">No insights generated yet</p>
+                <Button 
+                  onClick={onGenerateInsights}
+                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
+                >
+                  <Lightbulb className="h-4 w-4 mr-2" />
+                  Generate Insights
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

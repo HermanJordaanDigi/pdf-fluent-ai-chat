@@ -87,6 +87,8 @@ const Index = () => {
           isUploading={isUploading}
           onFileUpload={handleFileUpload}
           onDownload={handleDownload}
+          onGenerateSummary={handleGenerateSummary}
+          onGenerateInsights={handleGenerateInsights}
         />
       </div>
     </div>;

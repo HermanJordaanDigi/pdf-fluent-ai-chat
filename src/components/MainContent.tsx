@@ -25,6 +25,8 @@ interface MainContentProps {
   isUploading: boolean;
   onFileUpload: (file: File) => Promise<void>;
   onDownload: () => void;
+  onGenerateSummary: () => Promise<void>;
+  onGenerateInsights: () => Promise<void>;
 }
 
 const MainContent = ({
@@ -39,7 +41,9 @@ const MainContent = ({
   isProcessingInsights,
   isUploading,
   onFileUpload,
-  onDownload
+  onDownload,
+  onGenerateSummary,
+  onGenerateInsights
 }: MainContentProps) => {
   const { user } = useAuth();
 
@@ -64,6 +68,8 @@ const MainContent = ({
           isProcessingSummary={isProcessingSummary} 
           isProcessingInsights={isProcessingInsights} 
           onDownload={onDownload} 
+          onGenerateSummary={onGenerateSummary}
+          onGenerateInsights={onGenerateInsights}
         />
       }
 

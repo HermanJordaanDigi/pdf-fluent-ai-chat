@@ -32,31 +32,37 @@ export const useAutoGenerate = ({
 }: UseAutoGenerateProps) => {
   // Auto-generate summary when toggle is enabled
   useEffect(() => {
-    console.log('Summary effect triggered:', {
-      translatedDoc: !!translatedDoc,
+    console.log('Summary auto-generation check:', {
+      hasTranslatedDoc: !!translatedDoc,
       generateSummary,
-      summary: !!summary,
-      isProcessingSummary
+      hasSummary: !!summary,
+      isProcessingSummary,
+      shouldGenerate: translatedDoc && generateSummary && !summary && !isProcessingSummary
     });
     
     if (translatedDoc && generateSummary && !summary && !isProcessingSummary) {
-      console.log('Calling handleGenerateSummary...');
-      handleGenerateSummary();
+      console.log('Auto-generating summary...');
+      handleGenerateSummary().catch(error => {
+        console.error('Auto-generation failed for summary:', error);
+      });
     }
-  }, [generateSummary, translatedDoc, summary, isProcessingSummary, handleGenerateSummary]);
+  }, [translatedDoc, generateSummary, summary, isProcessingSummary, handleGenerateSummary]);
 
   // Auto-generate insights when toggle is enabled
   useEffect(() => {
-    console.log('Insights effect triggered:', {
-      translatedDoc: !!translatedDoc,
+    console.log('Insights auto-generation check:', {
+      hasTranslatedDoc: !!translatedDoc,
       generateInsights,
-      insightsLength: insights.length,
-      isProcessingInsights
+      hasInsights: insights.length > 0,
+      isProcessingInsights,
+      shouldGenerate: translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights
     });
     
     if (translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights) {
-      console.log('Calling handleGenerateInsights...');
-      handleGenerateInsights();
+      console.log('Auto-generating insights...');
+      handleGenerateInsights().catch(error => {
+        console.error('Auto-generation failed for insights:', error);
+      });
     }
-  }, [generateInsights, translatedDoc, insights, isProcessingInsights, handleGenerateInsights]);
+  }, [translatedDoc, generateInsights, insights.length, isProcessingInsights, handleGenerateInsights]);
 };
