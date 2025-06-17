@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -139,9 +140,14 @@ export const usePdfOperations = () => {
         throw new Error(`Summary generation failed: ${response.status} ${response.statusText}`);
       }
 
+      // Wait for the response and parse it
       const data = await response.json();
       console.log('Summary response data:', data);
-      const summaryText = data.summary || data.text || data.result || "Summary generated successfully.";
+      
+      // Extract summary text from various possible response formats
+      const summaryText = data.summary || data.text || data.result || data.content || "Summary generated successfully.";
+      
+      // Set the summary text to state
       setSummary(summaryText);
       
       toast({
@@ -194,10 +200,17 @@ export const usePdfOperations = () => {
         throw new Error(`Insights generation failed: ${response.status} ${response.statusText}`);
       }
 
+      // Wait for the response and parse it
       const data = await response.json();
       console.log('Insights response data:', data);
-      const insightsArray = data.insights || data.key_points || data.points || data.result || [];
-      const processedInsights = Array.isArray(insightsArray) ? insightsArray : [insightsArray];
+      
+      // Extract insights array from various possible response formats
+      const insightsArray = data.insights || data.key_points || data.points || data.result || data.content || [];
+      
+      // Ensure we have an array and process it
+      const processedInsights = Array.isArray(insightsArray) ? insightsArray : [insightsArray].filter(Boolean);
+      
+      // Set the insights array to state
       setInsights(processedInsights);
       
       toast({
