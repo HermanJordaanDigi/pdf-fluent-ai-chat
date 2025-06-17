@@ -185,7 +185,7 @@ const Index = () => {
           {user && !translatedDoc && <UserDashboard />}
 
           {/* Footer */}
-          <footer className="mt-16 border-t border-[#DDDDDD] py-0 px-0 my-[46px]">
+          <footer className="mt-16 border-t border-[#DDDDDD] py-0 px-0 my-[71px]">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-4">
               <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">About</a>
               <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Privacy Policy</a>
