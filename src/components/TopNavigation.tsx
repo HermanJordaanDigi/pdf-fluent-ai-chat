@@ -39,7 +39,7 @@ const TopNavigation = ({ chatMode, onChatModeChange, translatedDoc }: TopNavigat
         {/* Right side controls */}
         <div className="flex items-center gap-4">
           {/* Chat Mode Toggle */}
-          <div className="flex items-center gap-2 bg-white rounded-lg p-2 shadow-sm">
+          <div className="flex items-center gap-2 bg-white/25 backdrop-blur-lg rounded-lg p-2 shadow-sm border border-white/20">
             <MessageCircle className="h-4 w-4 text-[#333333]" />
             <span className="text-sm text-[#333333]">Chat Mode</span>
             <Switch 
