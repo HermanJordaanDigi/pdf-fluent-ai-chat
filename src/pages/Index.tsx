@@ -47,19 +47,6 @@ const Index = () => {
       </div>;
   }
 
-  // Add useEffect to handle toggle changes after upload
-  useEffect(() => {
-    if (translatedDoc && generateSummary && !summary && !isProcessingSummary) {
-      handleGenerateSummary();
-    }
-  }, [generateSummary, translatedDoc]);
-
-  useEffect(() => {
-    if (translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights) {
-      handleGenerateInsights();
-    }
-  }, [generateInsights, translatedDoc]);
-
   const handleFileUpload = async (file: File) => {
     if (!file || file.type !== 'application/pdf') {
       toast({
@@ -234,6 +221,19 @@ const Index = () => {
       setIsProcessingInsights(false);
     }
   };
+
+  // Add useEffect to handle toggle changes after upload
+  useEffect(() => {
+    if (translatedDoc && generateSummary && !summary && !isProcessingSummary) {
+      handleGenerateSummary();
+    }
+  }, [generateSummary, translatedDoc, summary, isProcessingSummary]);
+
+  useEffect(() => {
+    if (translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights) {
+      handleGenerateInsights();
+    }
+  }, [generateInsights, translatedDoc, insights, isProcessingInsights]);
 
   const handleDownload = () => {
     if (!translatedDoc) return;
