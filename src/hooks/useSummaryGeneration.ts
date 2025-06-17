@@ -49,17 +49,22 @@ export const useSummaryGeneration = () => {
       const data = await response.json();
       console.log('🔍 Full webhook response:', data);
       console.log('🔍 Response type:', typeof data);
-      console.log('🔍 Response keys:', Object.keys(data));
+      console.log('🔍 Response keys:', Array.isArray(data) ? 'Array with length:' + data.length : Object.keys(data));
       
       // Try multiple parsing strategies to extract the summary text
       let summaryText = "";
       
-      // Strategy 1: Direct field access
-      if (data.summary && typeof data.summary === 'string') {
+      // Strategy 1: Handle array format like [{"summary": "text"}]
+      if (Array.isArray(data) && data.length > 0 && data[0].summary) {
+        summaryText = data[0].summary;
+        console.log('✅ Found summary in array format data[0].summary');
+      }
+      // Strategy 2: Direct field access
+      else if (data.summary && typeof data.summary === 'string') {
         summaryText = data.summary;
         console.log('✅ Found summary in data.summary');
       }
-      // Strategy 2: Other common field names
+      // Strategy 3: Other common field names
       else if (data.text && typeof data.text === 'string') {
         summaryText = data.text;
         console.log('✅ Found summary in data.text');
@@ -76,12 +81,12 @@ export const useSummaryGeneration = () => {
         summaryText = data.message;
         console.log('✅ Found summary in data.message');
       }
-      // Strategy 3: If data itself is a string
+      // Strategy 4: If data itself is a string
       else if (typeof data === 'string') {
         summaryText = data;
         console.log('✅ Response data is directly a string');
       }
-      // Strategy 4: Try to find any string value in the response
+      // Strategy 5: Try to find any string value in the response
       else {
         const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
         if (stringValues.length > 0) {

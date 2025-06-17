@@ -49,13 +49,32 @@ export const useInsightsGeneration = () => {
       const data = await response.json();
       console.log('🔍 Full webhook response:', data);
       console.log('🔍 Response type:', typeof data);
-      console.log('🔍 Response keys:', Object.keys(data));
+      console.log('🔍 Response keys:', Array.isArray(data) ? 'Array with length:' + data.length : Object.keys(data));
       
       // Try multiple parsing strategies to extract insights
       let insightsArray: string[] = [];
       
-      // Strategy 1: Direct array field access
-      if (data.insights && Array.isArray(data.insights)) {
+      // Strategy 1: Handle array format like [{"insights": "{\"Insight1\":\"text\"}"}]
+      if (Array.isArray(data) && data.length > 0 && data[0].insights) {
+        try {
+          const insightsString = data[0].insights;
+          console.log('🔍 Found insights string:', insightsString);
+          
+          // Parse the JSON string inside the insights field
+          const insightsObject = JSON.parse(insightsString);
+          console.log('🔍 Parsed insights object:', insightsObject);
+          
+          // Extract values from the insights object
+          insightsArray = Object.values(insightsObject).filter(value => typeof value === 'string');
+          console.log('✅ Found insights in array format with JSON string parsing');
+        } catch (parseError) {
+          console.log('❌ Error parsing insights JSON string:', parseError);
+          // Fall back to treating it as a regular string
+          insightsArray = [data[0].insights];
+        }
+      }
+      // Strategy 2: Direct array field access
+      else if (data.insights && Array.isArray(data.insights)) {
         insightsArray = data.insights;
         console.log('✅ Found insights in data.insights array');
       }
@@ -75,12 +94,12 @@ export const useInsightsGeneration = () => {
         insightsArray = data.content;
         console.log('✅ Found insights in data.content array');
       }
-      // Strategy 2: If the response is directly an array
+      // Strategy 3: If the response is directly an array
       else if (Array.isArray(data)) {
         insightsArray = data;
         console.log('✅ Response data is directly an array');
       }
-      // Strategy 3: Try to convert string responses to array (split by newlines, bullets, etc.)
+      // Strategy 4: Try to convert string responses to array (split by newlines, bullets, etc.)
       else if (typeof data === 'string') {
         insightsArray = data.split('\n').filter(line => line.trim().length > 0);
         console.log('✅ Converted string response to array by splitting lines');
@@ -93,7 +112,7 @@ export const useInsightsGeneration = () => {
         insightsArray = data.key_points.split('\n').filter(line => line.trim().length > 0);
         console.log('✅ Converted string key_points to array');
       }
-      // Strategy 4: Look for any string values and try to parse them
+      // Strategy 5: Look for any string values and try to parse them
       else {
         const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
         if (stringValues.length > 0) {
