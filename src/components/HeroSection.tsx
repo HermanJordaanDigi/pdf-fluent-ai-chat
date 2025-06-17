@@ -26,7 +26,7 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
   };
 
   return (
-    <Card className="mb-8 shadow-lg border-0">
+    <Card className="mb-8 shadow-xl border-white/30 bg-white/25 backdrop-blur-lg">
       <CardHeader className="text-center">
         <CardTitle className="text-lg sm:text-xl md:text-xl lg:text-2xl xl:text-2xl font-bold mb-2 px-2">
           <TextShimmerWave
@@ -41,7 +41,7 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
             Translate Your PDFs from Portuguese to English Instantly
           </TextShimmerWave>
         </CardTitle>
-        <CardDescription className="text-[#666666] px-2">
+        <CardDescription className="text-[#555555] px-2">
           Just upload your document to get an English version - plus summaries and AI chat support.
         </CardDescription>
       </CardHeader>
@@ -49,7 +49,7 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
         <div 
           onDragOver={handleDragOver} 
           onDrop={handleDrop} 
-          className="border-2 border-dashed border-[#CCCCCC] rounded-lg p-8 text-center mb-6 transition-colors hover:border-[#AAAAAA] mx-[6px]"
+          className="border-2 border-dashed border-white/40 bg-white/10 backdrop-blur-sm rounded-lg p-8 text-center mb-6 transition-colors hover:border-white/60 hover:bg-white/15 mx-[6px]"
         >
           <Upload className="h-8 w-8 text-[#333333] mx-auto mb-4" />
           <p className="text-[#333333] mb-4">
@@ -65,12 +65,12 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
           <Button 
             onClick={() => fileInputRef.current?.click()} 
             disabled={isUploading} 
-            className="bg-[#AAAAAA] hover:bg-white hover:text-[#333333] border border-[#AAAAAA]"
+            className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
           >
             {isUploading ? "Uploading..." : "Upload"}
           </Button>
         </div>
-        <p className="text-xs text-[#AAAAAA] text-center">Powered by AI</p>
+        <p className="text-xs text-[#777777] text-center">Powered by AI</p>
       </CardContent>
     </Card>
   );

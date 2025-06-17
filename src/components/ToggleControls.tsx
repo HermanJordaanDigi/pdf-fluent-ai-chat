@@ -18,7 +18,7 @@ const ToggleControls = ({
   setGenerateInsights 
 }: ToggleControlsProps) => {
   return (
-    <Card className="mb-8 shadow-lg border-0">
+    <Card className="mb-8 shadow-xl border-white/30 bg-white/25 backdrop-blur-lg">
       <CardContent className="pt-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <div className="flex items-center space-x-2">
@@ -49,7 +49,7 @@ const ToggleControls = ({
         </div>
 
         {!generateSummary && !generateInsights && (
-          <p className="text-[#777777] text-sm text-center mt-4">
+          <p className="text-[#666666] text-sm text-center mt-4">
             Select one or both options after uploading
           </p>
         )}
