@@ -9,8 +9,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-import AnimatedBackground from '@/components/AnimatedBackground';
-
 interface TranslatedDocument {
   filename: string;
   size: string;
@@ -46,7 +44,6 @@ const Index = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   if (authLoading) {
     return <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
-        <AnimatedBackground />
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
       </div>;
   }
@@ -173,20 +170,12 @@ const Index = () => {
     }
   };
   if (chatMode) {
-    return (
-      <>
-        <AnimatedBackground />
-        <ChatInterface translatedDoc={translatedDoc} chatMessages={chatMessages} setChatMessages={setChatMessages} onBack={() => setChatMode(false)} />
-      </>
-    );
+    return <ChatInterface translatedDoc={translatedDoc} chatMessages={chatMessages} setChatMessages={setChatMessages} onBack={() => setChatMode(false)} />;
   }
-  return (
-    <div className="min-h-screen bg-[#F5F0E1] flex flex-col relative">
-      <AnimatedBackground />
-      
+  return <div className="min-h-screen bg-[#F5F0E1] flex flex-col">
       <TopNavigation chatMode={chatMode} onChatModeChange={initializeChat} translatedDoc={translatedDoc} />
 
-      <div className="flex-1 relative z-10">
+      <div className="flex-1">
         <div className="container mx-auto max-w-4xl px-[16px] py-[16px] my-[6px]">
           <HeroSection onFileUpload={handleFileUpload} isUploading={isUploading} />
           <ToggleControls generateSummary={generateSummary} setGenerateSummary={setGenerateSummary} generateInsights={generateInsights} setGenerateInsights={setGenerateInsights} />
@@ -206,8 +195,6 @@ const Index = () => {
           </footer>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
