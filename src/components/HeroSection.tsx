@@ -28,7 +28,7 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
   return (
     <Card className="mb-8 shadow-lg border-0">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold mb-2">
+        <CardTitle className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 px-2">
           <TextShimmerWave
             as="h1"
             className="[--base-color:#333333] [--base-gradient-color:#666666]"
@@ -41,8 +41,8 @@ const HeroSection = ({ onFileUpload, isUploading }: HeroSectionProps) => {
             Translate Your PDFs from Portuguese to English Instantly
           </TextShimmerWave>
         </CardTitle>
-        <CardDescription className="text-[#666666]">
-          Upload a PDF → Download translated version → Summarize or Chat
+        <CardDescription className="text-[#666666] px-2">
+          Just upload your document to get an English version - plus summaries and AI chat support.
         </CardDescription>
       </CardHeader>
       <CardContent className="py-[10px] px-[2px] my-0">
