@@ -32,37 +32,41 @@ export const useAutoGenerate = ({
 }: UseAutoGenerateProps) => {
   // Auto-generate summary when toggle is enabled
   useEffect(() => {
-    console.log('Summary auto-generation check:', {
-      hasTranslatedDoc: !!translatedDoc,
-      generateSummary,
-      hasSummary: !!summary,
-      isProcessingSummary,
-      shouldGenerate: translatedDoc && generateSummary && !summary && !isProcessingSummary
-    });
+    console.log('=== SUMMARY AUTO-GENERATION DEBUG ===');
+    console.log('translatedDoc exists:', !!translatedDoc);
+    console.log('generateSummary:', generateSummary);
+    console.log('summary exists:', !!summary);
+    console.log('summary length:', summary.length);
+    console.log('isProcessingSummary:', isProcessingSummary);
     
-    if (translatedDoc && generateSummary && !summary && !isProcessingSummary) {
-      console.log('Auto-generating summary...');
+    const shouldGenerate = translatedDoc && generateSummary && !summary && !isProcessingSummary;
+    console.log('Should generate summary:', shouldGenerate);
+    
+    if (shouldGenerate) {
+      console.log('🚀 CALLING handleGenerateSummary...');
       handleGenerateSummary().catch(error => {
-        console.error('Auto-generation failed for summary:', error);
+        console.error('❌ Auto-generation failed for summary:', error);
       });
     }
-  }, [translatedDoc, generateSummary, summary, isProcessingSummary, handleGenerateSummary]);
+  }, [translatedDoc, generateSummary, summary, isProcessingSummary]);
 
   // Auto-generate insights when toggle is enabled
   useEffect(() => {
-    console.log('Insights auto-generation check:', {
-      hasTranslatedDoc: !!translatedDoc,
-      generateInsights,
-      hasInsights: insights.length > 0,
-      isProcessingInsights,
-      shouldGenerate: translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights
-    });
+    console.log('=== INSIGHTS AUTO-GENERATION DEBUG ===');
+    console.log('translatedDoc exists:', !!translatedDoc);
+    console.log('generateInsights:', generateInsights);
+    console.log('insights exists:', insights.length > 0);
+    console.log('insights count:', insights.length);
+    console.log('isProcessingInsights:', isProcessingInsights);
     
-    if (translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights) {
-      console.log('Auto-generating insights...');
+    const shouldGenerate = translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights;
+    console.log('Should generate insights:', shouldGenerate);
+    
+    if (shouldGenerate) {
+      console.log('🚀 CALLING handleGenerateInsights...');
       handleGenerateInsights().catch(error => {
-        console.error('Auto-generation failed for insights:', error);
+        console.error('❌ Auto-generation failed for insights:', error);
       });
     }
-  }, [translatedDoc, generateInsights, insights.length, isProcessingInsights, handleGenerateInsights]);
+  }, [translatedDoc, generateInsights, insights.length, isProcessingInsights]);
 };

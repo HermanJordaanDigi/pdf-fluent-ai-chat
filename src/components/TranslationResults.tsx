@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Loader2, Sparkles, Lightbulb } from 'lucide-react';
+import { FileText, Download, Loader2, Sparkles, Lightbulb, RefreshCw } from 'lucide-react';
 
 interface TranslatedDocument {
   filename: string;
@@ -35,6 +35,16 @@ const TranslationResults = ({
   onGenerateSummary,
   onGenerateInsights
 }: TranslationResultsProps) => {
+  const handleManualSummary = () => {
+    console.log('🔥 MANUAL SUMMARY BUTTON CLICKED');
+    onGenerateSummary();
+  };
+
+  const handleManualInsights = () => {
+    console.log('🔥 MANUAL INSIGHTS BUTTON CLICKED');
+    onGenerateInsights();
+  };
+
   return (
     <div className="space-y-6">
       {/* Translated PDF Download */}
@@ -85,15 +95,25 @@ const TranslationResults = ({
                 <p className="text-[#333333] leading-relaxed">{summary}</p>
               </div>
             ) : (
-              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center">
-                <p className="text-[#666666] mb-4">No summary generated yet</p>
-                <Button 
-                  onClick={onGenerateSummary}
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
-                >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Summary
-                </Button>
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center space-y-3">
+                <p className="text-[#666666]">No summary generated yet</p>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={handleManualSummary}
+                    className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Summary
+                  </Button>
+                  <Button 
+                    onClick={handleManualSummary}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/40 text-[#333333]"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -132,15 +152,25 @@ const TranslationResults = ({
                 ))}
               </ul>
             ) : (
-              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center">
-                <p className="text-[#666666] mb-4">No insights generated yet</p>
-                <Button 
-                  onClick={onGenerateInsights}
-                  className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
-                >
-                  <Lightbulb className="h-4 w-4 mr-2" />
-                  Generate Insights
-                </Button>
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4 text-center space-y-3">
+                <p className="text-[#666666]">No insights generated yet</p>
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={handleManualInsights}
+                    className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"
+                  >
+                    <Lightbulb className="h-4 w-4 mr-2" />
+                    Generate Insights
+                  </Button>
+                  <Button 
+                    onClick={handleManualInsights}
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/40 text-[#333333]"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
