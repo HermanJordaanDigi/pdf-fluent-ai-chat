@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -47,6 +46,19 @@ const Index = () => {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#333333]"></div>
       </div>;
   }
+
+  // Add useEffect to handle toggle changes after upload
+  useEffect(() => {
+    if (translatedDoc && generateSummary && !summary && !isProcessingSummary) {
+      handleGenerateSummary();
+    }
+  }, [generateSummary, translatedDoc]);
+
+  useEffect(() => {
+    if (translatedDoc && generateInsights && insights.length === 0 && !isProcessingInsights) {
+      handleGenerateInsights();
+    }
+  }, [generateInsights, translatedDoc]);
 
   const handleFileUpload = async (file: File) => {
     if (!file || file.type !== 'application/pdf') {
@@ -107,14 +119,6 @@ const Index = () => {
         insights: null
       });
 
-      // Process summary and insights if toggles are active
-      if (generateSummary) {
-        await handleGenerateSummary(translatedDoc);
-      }
-      if (generateInsights) {
-        await handleGenerateInsights(translatedDoc);
-      }
-
       toast({
         title: "Translation Complete",
         description: "Your PDF has been successfully translated to English."
@@ -133,9 +137,11 @@ const Index = () => {
 
   const handleGenerateSummary = async (document?: TranslatedDocument) => {
     const docToUse = document || translatedDoc;
-    if (!docToUse) return;
+    if (!docToUse || !user) return;
 
     setIsProcessingSummary(true);
+    console.log('Calling summary webhook...');
+    
     try {
       // Convert blob to base64 for sending to webhook
       const arrayBuffer = await docToUse.blob.arrayBuffer();
@@ -149,7 +155,7 @@ const Index = () => {
         body: JSON.stringify({
           filename: docToUse.filename,
           content: base64,
-          user_id: user?.id
+          user_id: user.id
         }),
       });
 
@@ -158,7 +164,14 @@ const Index = () => {
       }
 
       const data = await response.json();
-      setSummary(data.summary || data.text || "Summary generated successfully.");
+      console.log('Summary response:', data);
+      const summaryText = data.summary || data.text || data.result || "Summary generated successfully.";
+      setSummary(summaryText);
+      
+      toast({
+        title: "Summary Generated",
+        description: "Document summary has been created."
+      });
     } catch (error) {
       console.error('Summary generation error:', error);
       toast({
@@ -173,9 +186,11 @@ const Index = () => {
 
   const handleGenerateInsights = async (document?: TranslatedDocument) => {
     const docToUse = document || translatedDoc;
-    if (!docToUse) return;
+    if (!docToUse || !user) return;
 
     setIsProcessingInsights(true);
+    console.log('Calling key-points webhook...');
+    
     try {
       // Convert blob to base64 for sending to webhook
       const arrayBuffer = await docToUse.blob.arrayBuffer();
@@ -189,7 +204,7 @@ const Index = () => {
         body: JSON.stringify({
           filename: docToUse.filename,
           content: base64,
-          user_id: user?.id
+          user_id: user.id
         }),
       });
 
@@ -198,9 +213,16 @@ const Index = () => {
       }
 
       const data = await response.json();
+      console.log('Insights response:', data);
       // Handle different possible response formats
-      const insightsArray = data.insights || data.key_points || data.points || [];
-      setInsights(Array.isArray(insightsArray) ? insightsArray : [insightsArray]);
+      const insightsArray = data.insights || data.key_points || data.points || data.result || [];
+      const processedInsights = Array.isArray(insightsArray) ? insightsArray : [insightsArray];
+      setInsights(processedInsights);
+      
+      toast({
+        title: "Insights Generated",
+        description: "Key insights have been extracted from your document."
+      });
     } catch (error) {
       console.error('Insights generation error:', error);
       toast({
