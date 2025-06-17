@@ -9,7 +9,6 @@ import TranslationResults from '@/components/TranslationResults';
 import ChatInterface from '@/components/ChatInterface';
 import TopNavigation from '@/components/TopNavigation';
 import UserDashboard from '@/components/UserDashboard';
-
 interface TranslatedDocument {
   filename: string;
   size: string;
@@ -21,7 +20,6 @@ interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
 }
-
 const Index = () => {
   const {
     user,
@@ -178,7 +176,7 @@ const Index = () => {
       <TopNavigation chatMode={chatMode} onChatModeChange={initializeChat} translatedDoc={translatedDoc} />
 
       <div className="flex-1">
-        <div className="container mx-auto px-4 max-w-4xl py-[16px]">
+        <div className="container mx-auto max-w-4xl px-[16px] py-[16px] my-[6px]">
           <HeroSection onFileUpload={handleFileUpload} isUploading={isUploading} />
           <ToggleControls generateSummary={generateSummary} setGenerateSummary={setGenerateSummary} generateInsights={generateInsights} setGenerateInsights={setGenerateInsights} />
 
@@ -199,5 +197,4 @@ const Index = () => {
       </div>
     </div>;
 };
-
 export default Index;
