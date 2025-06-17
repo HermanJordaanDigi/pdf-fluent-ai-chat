@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,37 +10,91 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const UserMenu = () => {
   const { user, signOut } = useAuth();
+  const [userInitials, setUserInitials] = useState('');
+  const [fullName, setFullName] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      // Try to get data from user_metadata first
+      const metadataFullName = user.user_metadata?.full_name;
+      if (metadataFullName) {
+        setFullName(metadataFullName);
+        generateInitialsFromName(metadataFullName);
+      } else {
+        // If not in metadata, try to fetch from profiles table
+        fetchUserProfile();
+      }
+    }
+  }, [user]);
+
+  const fetchUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data && data.full_name) {
+        setFullName(data.full_name);
+        generateInitialsFromName(data.full_name);
+      } else {
+        // Fallback to email if no profile or full name
+        generateInitialsFromEmail(user.email || '');
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      // Fallback to email
+      generateInitialsFromEmail(user.email || '');
+    }
+  };
+
+  const generateInitialsFromName = (name: string) => {
+    const nameParts = name.trim().split(' ').filter(part => part.length > 0);
+    
+    if (nameParts.length >= 2) {
+      // Get first letter of first and last name
+      const initials = `${nameParts[0][0]}.${nameParts[nameParts.length - 1][0]}`;
+      setUserInitials(initials.toUpperCase());
+    } else if (nameParts.length === 1) {
+      // If only one name, use first two letters or just first letter with dot
+      setUserInitials(`${nameParts[0][0]}.`);
+    }
+  };
+
+  const generateInitialsFromEmail = (email: string) => {
+    const emailName = email.split('@')[0];
+    if (emailName.length > 0) {
+      setUserInitials(emailName[0].toUpperCase() + '.');
+    } else {
+      setUserInitials('U.');
+    }
+  };
 
   if (!user) return null;
-
-  // Extract first name and initial from user metadata or email
-  const getDisplayName = () => {
-    const fullName = user.user_metadata?.full_name;
-    
-    if (fullName) {
-      const nameParts = fullName.trim().split(' ');
-      const firstName = nameParts[0];
-      const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : '';
-      return lastInitial ? `${firstName} ${lastInitial}.` : firstName;
-    }
-    
-    // Fallback to email if no full name
-    const emailParts = user.email?.split('@')[0] || '';
-    return emailParts.charAt(0).toUpperCase() + emailParts.slice(1);
-  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="text-[#333333] hover:bg-[#EEEEEE] p-2">
           <User className="h-4 w-4 mr-2" />
-          {getDisplayName()}
+          {userInitials || '...'}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
+        {fullName && (
+          <div className="px-2 py-1.5 text-sm font-medium text-gray-700 border-b mb-1">
+            {fullName}
+          </div>
+        )}
         <DropdownMenuItem className="cursor-pointer">
           <FileText className="h-4 w-4 mr-2" />
           My Translations
