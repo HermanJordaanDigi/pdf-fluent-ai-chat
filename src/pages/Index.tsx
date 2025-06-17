@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -198,47 +197,49 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F0E1] relative">
+    <div className="min-h-screen bg-[#F5F0E1] flex flex-col">
       <TopNavigation 
         chatMode={chatMode}
         onChatModeChange={initializeChat}
         translatedDoc={translatedDoc}
       />
 
-      <div className="container mx-auto px-4 max-w-4xl my-0 py-[82px]">
-        <HeroSection />
-        <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
-        <ToggleControls 
-          generateSummary={generateSummary}
-          setGenerateSummary={setGenerateSummary}
-          generateInsights={generateInsights}
-          setGenerateInsights={setGenerateInsights}
-        />
-
-        {translatedDoc && (
-          <TranslationResults
-            translatedDoc={translatedDoc}
+      <div className="flex-1">
+        <div className="container mx-auto px-4 max-w-4xl py-8">
+          <HeroSection />
+          <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
+          <ToggleControls 
             generateSummary={generateSummary}
+            setGenerateSummary={setGenerateSummary}
             generateInsights={generateInsights}
-            summary={summary}
-            insights={insights}
-            isProcessingSummary={isProcessingSummary}
-            isProcessingInsights={isProcessingInsights}
-            onDownload={handleDownload}
+            setGenerateInsights={setGenerateInsights}
           />
-        )}
 
-        {user && !translatedDoc && <UserDashboard />}
+          {translatedDoc && (
+            <TranslationResults
+              translatedDoc={translatedDoc}
+              generateSummary={generateSummary}
+              generateInsights={generateInsights}
+              summary={summary}
+              insights={insights}
+              isProcessingSummary={isProcessingSummary}
+              isProcessingInsights={isProcessingInsights}
+              onDownload={handleDownload}
+            />
+          )}
 
-        {/* Footer */}
-        <footer className="mt-16 py-8 border-t border-[#DDDDDD]">
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-4">
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">About</a>
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Contact</a>
-          </div>
-          <p className="text-center text-[#AAAAAA] text-sm">© 2025 Activflow</p>
-        </footer>
+          {user && !translatedDoc && <UserDashboard />}
+
+          {/* Footer */}
+          <footer className="mt-16 py-8 border-t border-[#DDDDDD]">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-4">
+              <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">About</a>
+              <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Privacy Policy</a>
+              <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Contact</a>
+            </div>
+            <p className="text-center text-[#AAAAAA] text-sm">© 2025 ClaroDoc</p>
+          </footer>
+        </div>
       </div>
     </div>
   );
