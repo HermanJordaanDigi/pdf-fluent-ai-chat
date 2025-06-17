@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -106,39 +105,59 @@ export const usePdfOperations = () => {
     }
   };
 
-  const handleGenerateSummary = async (document?: TranslatedDocument) => {
-    const docToUse = document || translatedDoc;
-    if (!docToUse || !user) {
-      console.log('Cannot generate summary - missing doc or user');
+  const handleGenerateSummary = async () => {
+    if (!user) {
+      console.log('Cannot generate summary - no user');
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to generate summaries.",
+        variant: "destructive"
+      });
       return;
     }
 
     setIsProcessingSummary(true);
-    console.log('Calling summary webhook for:', docToUse.filename);
+    console.log('🚀 Calling summary webhook...');
     
     try {
-      // Convert blob to base64 for sending to webhook
-      const arrayBuffer = await docToUse.blob.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      let payload;
+      
+      if (translatedDoc) {
+        // If we have a translated document, send its content
+        const arrayBuffer = await translatedDoc.blob.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+        payload = {
+          filename: translatedDoc.filename,
+          content: base64,
+          user_id: user.id
+        };
+      } else {
+        // If no document, send a test payload
+        payload = {
+          filename: 'test-document.pdf',
+          content: 'test-content-for-summary',
+          user_id: user.id
+        };
+      }
+
+      console.log('Summary payload:', { ...payload, content: 'base64-data-hidden' });
 
       const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/summary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          filename: docToUse.filename,
-          content: base64,
-          user_id: user.id
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('Summary response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Summary generation failed: ${response.statusText}`);
+        throw new Error(`Summary generation failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Summary response:', data);
+      console.log('Summary response data:', data);
       const summaryText = data.summary || data.text || data.result || "Summary generated successfully.";
       setSummary(summaryText);
       
@@ -147,10 +166,10 @@ export const usePdfOperations = () => {
         description: "Document summary has been created."
       });
     } catch (error) {
-      console.error('Summary generation error:', error);
+      console.error('❌ Summary generation error:', error);
       toast({
         title: "Summary Generation Failed",
-        description: "Unable to generate summary. Please try again.",
+        description: `Unable to generate summary: ${error.message}`,
         variant: "destructive"
       });
     } finally {
@@ -158,53 +177,72 @@ export const usePdfOperations = () => {
     }
   };
 
-  const handleGenerateInsights = async (document?: TranslatedDocument) => {
-    const docToUse = document || translatedDoc;
-    if (!docToUse || !user) {
-      console.log('Cannot generate insights - missing doc or user');
+  const handleGenerateInsights = async () => {
+    if (!user) {
+      console.log('Cannot generate insights - no user');
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to generate insights.",
+        variant: "destructive"
+      });
       return;
     }
 
     setIsProcessingInsights(true);
-    console.log('Calling key-points webhook for:', docToUse.filename);
+    console.log('🚀 Calling insights webhook...');
     
     try {
-      // Convert blob to base64 for sending to webhook
-      const arrayBuffer = await docToUse.blob.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      let payload;
+      
+      if (translatedDoc) {
+        // If we have a translated document, send its content
+        const arrayBuffer = await translatedDoc.blob.arrayBuffer();
+        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+        payload = {
+          filename: translatedDoc.filename,
+          content: base64,
+          user_id: user.id
+        };
+      } else {
+        // If no document, send a test payload
+        payload = {
+          filename: 'test-document.pdf',
+          content: 'test-content-for-insights',
+          user_id: user.id
+        };
+      }
+
+      console.log('Insights payload:', { ...payload, content: 'base64-data-hidden' });
 
       const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/key-points', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          filename: docToUse.filename,
-          content: base64,
-          user_id: user.id
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('Insights response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`Insights generation failed: ${response.statusText}`);
+        throw new Error(`Insights generation failed: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Insights response:', data);
-      // Handle different possible response formats
+      console.log('Insights response data:', data);
       const insightsArray = data.insights || data.key_points || data.points || data.result || [];
       const processedInsights = Array.isArray(insightsArray) ? insightsArray : [insightsArray];
       setInsights(processedInsights);
       
       toast({
         title: "Insights Generated",
-        description: "Key insights have been extracted from your document."
+        description: "Key insights have been extracted."
       });
     } catch (error) {
-      console.error('Insights generation error:', error);
+      console.error('❌ Insights generation error:', error);
       toast({
         title: "Insights Generation Failed",
-        description: "Unable to generate insights. Please try again.",
+        description: `Unable to generate insights: ${error.message}`,
         variant: "destructive"
       });
     } finally {

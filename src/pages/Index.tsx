@@ -6,7 +6,6 @@ import TopNavigation from '@/components/TopNavigation';
 import MainContent from '@/components/MainContent';
 import { usePdfOperations } from '@/hooks/usePdfOperations';
 import { useChatMode } from '@/hooks/useChatMode';
-import { useAutoGenerate } from '@/hooks/useAutoGenerate';
 
 const Index = () => {
   const { loading: authLoading } = useAuth();
@@ -37,19 +36,6 @@ const Index = () => {
   // Toggle controls state
   const [generateSummary, setGenerateSummary] = useState(false);
   const [generateInsights, setGenerateInsights] = useState(false);
-
-  // Auto-generate summary and insights when toggles are enabled
-  useAutoGenerate({
-    translatedDoc,
-    generateSummary,
-    generateInsights,
-    summary,
-    insights,
-    isProcessingSummary,
-    isProcessingInsights,
-    handleGenerateSummary,
-    handleGenerateInsights
-  });
 
   if (authLoading) {
     return <div className="min-h-screen bg-[#F5F0E1] flex items-center justify-center">
