@@ -11,7 +11,7 @@ const AnimatedBackground = () => {
     const svgNS = "http://www.w3.org/2000/svg";
     const N = 420;
     const SIZE = 500;
-    const DOT_R = 1.2;
+    const DOT_R = 2; // Increased from 1.2 to make dots more visible
     const MARGIN = 10;
     const CX = SIZE / 2;
     const CY = SIZE / 2;
@@ -36,8 +36,8 @@ const AnimatedBackground = () => {
       circle.setAttribute("cx", x.toString());
       circle.setAttribute("cy", y.toString());
       circle.setAttribute("r", DOT_R.toString());
-      circle.setAttribute("fill", "#CCCCCC");
-      circle.setAttribute("opacity", "0.3");
+      circle.setAttribute("fill", "#888888"); // Darker color for better visibility
+      circle.setAttribute("opacity", "0.4"); // Increased opacity
 
       const animR = document.createElementNS(svgNS, "animate");
       animR.setAttribute("attributeName", "r");
@@ -50,7 +50,7 @@ const AnimatedBackground = () => {
 
       const animO = document.createElementNS(svgNS, "animate");
       animO.setAttribute("attributeName", "opacity");
-      animO.setAttribute("values", "0.15;0.4;0.15");
+      animO.setAttribute("values", "0.2;0.6;0.2"); // Higher opacity range
       animO.setAttribute("dur", `${DUR}s`);
       animO.setAttribute("begin", `${frac * DUR}s`);
       animO.setAttribute("repeatCount", "indefinite");
@@ -74,10 +74,11 @@ const AnimatedBackground = () => {
           width="100%"
           height="100%"
           viewBox="0 0 500 500"
-          className="w-full h-full opacity-60"
+          className="w-full h-full"
           style={{
             willChange: 'transform',
-            transform: 'scale(1.5)',
+            transform: 'scale(2.5)', // Increased scale from 1.5 to 2.5 for better visibility
+            opacity: 0.8, // Added overall opacity
           }}
         >
           <g />
