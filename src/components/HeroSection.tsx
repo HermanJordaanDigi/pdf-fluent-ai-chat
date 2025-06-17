@@ -3,10 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { TextShimmerWave } from "@/components/ui/text-shimmer-wave";
 import { Upload } from 'lucide-react';
+
 interface HeroSectionProps {
   onFileUpload: (file: File) => Promise<void>;
   isUploading: boolean;
 }
+
 const HeroSection = ({
   onFileUpload,
   isUploading
@@ -22,11 +24,12 @@ const HeroSection = ({
       onFileUpload(files[0]);
     }
   };
-  return <Card className="mb-8 shadow-lg border-0">
+  return (
+    <Card className="mb-8 shadow-lg border-0">
       <CardHeader className="text-center">
-        <CardTitle className="text-lg sm:text-xl md:text-xl lg:text-2xl xl:text-2xl font-bold mb-2 px-2">
+        <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-4xl font-bold mb-2 px-2">
           <TextShimmerWave as="h1" className="[--base-color:#333333] [--base-gradient-color:#666666]" duration={1.2} spread={1.5} zDistance={8} scaleDistance={1.05} rotateYDistance={15}>
-            Translate Your PDFs from Portuguese to English Instantly
+            Translate Portuguese PDFs Instantly
           </TextShimmerWave>
         </CardTitle>
         <CardDescription className="text-[#666666] px-2">
@@ -46,6 +49,8 @@ const HeroSection = ({
         </div>
         <p className="text-xs text-[#AAAAAA] text-center">Powered by AI</p>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default HeroSection;
