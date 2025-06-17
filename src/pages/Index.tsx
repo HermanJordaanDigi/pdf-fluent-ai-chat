@@ -177,7 +177,7 @@ const Index = () => {
       <TopNavigation chatMode={chatMode} onChatModeChange={initializeChat} translatedDoc={translatedDoc} />
 
       <div className="flex-1">
-        <div className="container mx-auto px-4 max-w-4xl py-8">
+        <div className="container mx-auto px-4 max-w-4xl py-[16px]">
           <HeroSection />
           <FileUploadArea onFileUpload={handleFileUpload} isUploading={isUploading} />
           <ToggleControls generateSummary={generateSummary} setGenerateSummary={setGenerateSummary} generateInsights={generateInsights} setGenerateInsights={setGenerateInsights} />
@@ -187,7 +187,7 @@ const Index = () => {
           {user && !translatedDoc && <UserDashboard />}
 
           {/* Footer */}
-          <footer className="mt-16 border-t border-[#DDDDDD] my-[35px] py-0">
+          <footer className="mt-16 border-t border-[#DDDDDD] py-0 px-0 my-[46px]">
             <div className="flex flex-col sm:flex-row justify-center items-center gap-6 mb-4">
               <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">About</a>
               <a href="#" className="text-[#777777] hover:text-[#333333] transition-colors">Privacy Policy</a>
