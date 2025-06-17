@@ -54,19 +54,31 @@ export const useInsightsGeneration = () => {
       // Try multiple parsing strategies to extract insights
       let insightsArray: string[] = [];
       
-      // Strategy 1: Handle array format like [{"insights": "{\"Insight1\":\"text\"}"}]
+      // Strategy 1: Handle specific array format [{"insights": "{\"Insight1\":\"text\",\"Insight2\":\"text\"}"}]
       if (Array.isArray(data) && data.length > 0 && data[0].insights) {
         try {
           const insightsString = data[0].insights;
           console.log('🔍 Found insights string:', insightsString);
+          console.log('🔍 Insights string type:', typeof insightsString);
           
           // Parse the JSON string inside the insights field
           const insightsObject = JSON.parse(insightsString);
           console.log('🔍 Parsed insights object:', insightsObject);
+          console.log('🔍 Insights object keys:', Object.keys(insightsObject));
           
-          // Extract values from the insights object
-          insightsArray = Object.values(insightsObject).filter(value => typeof value === 'string');
-          console.log('✅ Found insights in array format with JSON string parsing');
+          // Extract values from the insights object and ensure they're complete
+          insightsArray = Object.values(insightsObject)
+            .filter(value => typeof value === 'string' && value.trim().length > 0)
+            .map(value => (value as string).trim());
+          
+          console.log('✅ Successfully parsed insights from array format:', insightsArray);
+          console.log('✅ Number of insights extracted:', insightsArray.length);
+          
+          // Log each insight to verify completeness
+          insightsArray.forEach((insight, index) => {
+            console.log(`✅ Insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 100) + (insight.length > 100 ? '...' : ''));
+          });
+          
         } catch (parseError) {
           console.log('❌ Error parsing insights JSON string:', parseError);
           // Fall back to treating it as a regular string
@@ -94,12 +106,10 @@ export const useInsightsGeneration = () => {
         insightsArray = data.content;
         console.log('✅ Found insights in data.content array');
       }
-      // Strategy 3: If the response is directly an array
       else if (Array.isArray(data)) {
         insightsArray = data;
         console.log('✅ Response data is directly an array');
       }
-      // Strategy 4: Try to convert string responses to array (split by newlines, bullets, etc.)
       else if (typeof data === 'string') {
         insightsArray = data.split('\n').filter(line => line.trim().length > 0);
         console.log('✅ Converted string response to array by splitting lines');
@@ -112,7 +122,6 @@ export const useInsightsGeneration = () => {
         insightsArray = data.key_points.split('\n').filter(line => line.trim().length > 0);
         console.log('✅ Converted string key_points to array');
       }
-      // Strategy 5: Look for any string values and try to parse them
       else {
         const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
         if (stringValues.length > 0) {
@@ -124,20 +133,26 @@ export const useInsightsGeneration = () => {
         }
       }
       
-      // Clean up the insights array
+      // Clean up the insights array but preserve full content
       insightsArray = insightsArray
         .map(insight => insight.trim())
         .filter(insight => insight.length > 0)
-        .map(insight => insight.replace(/^[-•*]\s*/, '')); // Remove bullet points
+        .map(insight => insight.replace(/^[-•*]\s*/, '')); // Remove bullet points but keep full content
       
       console.log('📝 Final insights array:', insightsArray);
+      console.log('📝 Final insights count:', insightsArray.length);
+      
+      // Verify each insight is complete
+      insightsArray.forEach((insight, index) => {
+        console.log(`📝 Final insight ${index + 1} length:`, insight.length);
+      });
       
       // Set the insights array to state
       setInsights(insightsArray);
       
       toast({
         title: "Insights Generated",
-        description: "Key insights have been extracted."
+        description: `${insightsArray.length} key insights have been extracted.`
       });
     } catch (error) {
       console.error('❌ Insights generation error:', error);

@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import HeroSection from '@/components/HeroSection';
-import ToggleControls from '@/components/ToggleControls';
+import ActionButtons from '@/components/ActionButtons';
 import TranslationResults from '@/components/TranslationResults';
 import UserDashboard from '@/components/UserDashboard';
 
@@ -50,12 +50,12 @@ const MainContent = ({
   return (
     <div className="container mx-auto max-w-4xl px-[16px] py-[16px] my-[6px]">
       <HeroSection onFileUpload={onFileUpload} isUploading={isUploading} />
-      <ToggleControls 
-        generateSummary={generateSummary} 
-        setGenerateSummary={setGenerateSummary} 
-        generateInsights={generateInsights} 
-        setGenerateInsights={setGenerateInsights}
+      <ActionButtons 
         translatedDoc={translatedDoc}
+        onGenerateSummary={onGenerateSummary}
+        onGenerateInsights={onGenerateInsights}
+        isProcessingSummary={isProcessingSummary}
+        isProcessingInsights={isProcessingInsights}
       />
 
       {translatedDoc && 
