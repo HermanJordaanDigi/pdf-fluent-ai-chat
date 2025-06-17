@@ -117,37 +117,20 @@ export const usePdfOperations = () => {
     }
 
     setIsProcessingSummary(true);
-    console.log('🚀 Calling summary webhook...');
+    console.log('🚀 Calling summary webhook with GET...');
     
     try {
-      let payload;
-      
-      if (translatedDoc) {
-        // If we have a translated document, send its content
-        const arrayBuffer = await translatedDoc.blob.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-        payload = {
-          filename: translatedDoc.filename,
-          content: base64,
-          user_id: user.id
-        };
-      } else {
-        // If no document, send a test payload
-        payload = {
-          filename: 'test-document.pdf',
-          content: 'test-content-for-summary',
-          user_id: user.id
-        };
-      }
+      // Construct URL with query parameters
+      const params = new URLSearchParams({
+        user_id: user.id,
+        filename: translatedDoc ? translatedDoc.filename : 'test-document.pdf'
+      });
 
-      console.log('Summary payload:', { ...payload, content: 'base64-data-hidden' });
+      const url = `https://jordaandigi.app.n8n.cloud/webhook-test/summary?${params.toString()}`;
+      console.log('Summary URL:', url);
 
-      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/summary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      const response = await fetch(url, {
+        method: 'GET',
       });
 
       console.log('Summary response status:', response.status);
@@ -189,37 +172,20 @@ export const usePdfOperations = () => {
     }
 
     setIsProcessingInsights(true);
-    console.log('🚀 Calling insights webhook...');
+    console.log('🚀 Calling insights webhook with GET...');
     
     try {
-      let payload;
-      
-      if (translatedDoc) {
-        // If we have a translated document, send its content
-        const arrayBuffer = await translatedDoc.blob.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-        payload = {
-          filename: translatedDoc.filename,
-          content: base64,
-          user_id: user.id
-        };
-      } else {
-        // If no document, send a test payload
-        payload = {
-          filename: 'test-document.pdf',
-          content: 'test-content-for-insights',
-          user_id: user.id
-        };
-      }
+      // Construct URL with query parameters
+      const params = new URLSearchParams({
+        user_id: user.id,
+        filename: translatedDoc ? translatedDoc.filename : 'test-document.pdf'
+      });
 
-      console.log('Insights payload:', { ...payload, content: 'base64-data-hidden' });
+      const url = `https://jordaandigi.app.n8n.cloud/webhook-test/key-points?${params.toString()}`;
+      console.log('Insights URL:', url);
 
-      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/key-points', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      const response = await fetch(url, {
+        method: 'GET',
       });
 
       console.log('Insights response status:', response.status);
