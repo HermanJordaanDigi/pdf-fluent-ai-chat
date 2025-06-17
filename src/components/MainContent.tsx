@@ -50,7 +50,8 @@ const MainContent = ({
         generateSummary={generateSummary} 
         setGenerateSummary={setGenerateSummary} 
         generateInsights={generateInsights} 
-        setGenerateInsights={setGenerateInsights} 
+        setGenerateInsights={setGenerateInsights}
+        translatedDoc={translatedDoc}
       />
 
       {translatedDoc && 

@@ -44,6 +44,11 @@ export const usePdfOperations = () => {
       return;
     }
 
+    // Clear previous results when uploading new file
+    setSummary("");
+    setInsights([]);
+    setTranslatedDoc(null);
+    
     setUploadedFile(file);
     setIsUploading(true);
 
@@ -53,6 +58,7 @@ export const usePdfOperations = () => {
       formData.append('pdf', file);
       formData.append('user_id', user.id);
 
+      console.log('Calling PDF translation webhook...');
       const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf', {
         method: 'POST',
         body: formData,
@@ -70,6 +76,7 @@ export const usePdfOperations = () => {
         blob: translatedBlob
       };
 
+      console.log('PDF translation completed:', translatedDoc.filename);
       setTranslatedDoc(translatedDoc);
 
       // Save translation to database
@@ -101,10 +108,13 @@ export const usePdfOperations = () => {
 
   const handleGenerateSummary = async (document?: TranslatedDocument) => {
     const docToUse = document || translatedDoc;
-    if (!docToUse || !user) return;
+    if (!docToUse || !user) {
+      console.log('Cannot generate summary - missing doc or user');
+      return;
+    }
 
     setIsProcessingSummary(true);
-    console.log('Calling summary webhook...');
+    console.log('Calling summary webhook for:', docToUse.filename);
     
     try {
       // Convert blob to base64 for sending to webhook
@@ -150,10 +160,13 @@ export const usePdfOperations = () => {
 
   const handleGenerateInsights = async (document?: TranslatedDocument) => {
     const docToUse = document || translatedDoc;
-    if (!docToUse || !user) return;
+    if (!docToUse || !user) {
+      console.log('Cannot generate insights - missing doc or user');
+      return;
+    }
 
     setIsProcessingInsights(true);
-    console.log('Calling key-points webhook...');
+    console.log('Calling key-points webhook for:', docToUse.filename);
     
     try {
       // Convert blob to base64 for sending to webhook

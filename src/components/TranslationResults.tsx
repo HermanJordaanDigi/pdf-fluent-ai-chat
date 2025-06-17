@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, Loader2 } from 'lucide-react';
 
 interface TranslatedDocument {
   filename: string;
@@ -62,11 +62,20 @@ const TranslationResults = ({
       {generateSummary && (
         <Card className="shadow-xl border-white/30 bg-white/25 backdrop-blur-lg">
           <CardHeader>
-            <CardTitle className="text-lg text-[#333333]">Summary</CardTitle>
+            <CardTitle className="text-lg text-[#333333] flex items-center gap-2">
+              Summary
+              {isProcessingSummary && <Loader2 className="h-4 w-4 animate-spin" />}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {isProcessingSummary ? (
-              <div className="bg-white/20 animate-pulse rounded-lg h-32"></div>
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#333333]" />
+                  <p className="text-[#333333]">Generating summary...</p>
+                </div>
+                <div className="bg-white/20 animate-pulse rounded-lg h-24 mt-3"></div>
+              </div>
             ) : summary ? (
               <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg p-4 max-h-48 overflow-y-auto">
                 <p className="text-[#333333] leading-relaxed">{summary}</p>
@@ -80,14 +89,23 @@ const TranslationResults = ({
       {generateInsights && (
         <Card className="shadow-xl border-white/30 bg-white/25 backdrop-blur-lg">
           <CardHeader>
-            <CardTitle className="text-lg text-[#333333]">5 Key Insights</CardTitle>
+            <CardTitle className="text-lg text-[#333333] flex items-center gap-2">
+              5 Key Insights
+              {isProcessingInsights && <Loader2 className="h-4 w-4 animate-spin" />}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {isProcessingInsights ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="bg-white/20 animate-pulse rounded h-8"></div>
-                ))}
+              <div className="bg-white/20 border border-white/30 rounded-lg p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#333333]" />
+                  <p className="text-[#333333]">Generating key insights...</p>
+                </div>
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="bg-white/20 animate-pulse rounded h-8"></div>
+                  ))}
+                </div>
               </div>
             ) : insights.length > 0 ? (
               <ul className="space-y-3">
