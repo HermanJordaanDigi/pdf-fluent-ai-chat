@@ -16,12 +16,28 @@ const UserMenu = () => {
 
   if (!user) return null;
 
+  // Extract first name and initial from user metadata or email
+  const getDisplayName = () => {
+    const fullName = user.user_metadata?.full_name;
+    
+    if (fullName) {
+      const nameParts = fullName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : '';
+      return lastInitial ? `${firstName} ${lastInitial}.` : firstName;
+    }
+    
+    // Fallback to email if no full name
+    const emailParts = user.email?.split('@')[0] || '';
+    return emailParts.charAt(0).toUpperCase() + emailParts.slice(1);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="text-[#333333] hover:bg-[#EEEEEE] p-2">
           <User className="h-4 w-4 mr-2" />
-          {user.email}
+          {getDisplayName()}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
