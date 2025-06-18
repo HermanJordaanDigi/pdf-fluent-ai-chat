@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send } from 'lucide-react';
@@ -76,22 +78,66 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
       }
 
       const data = await response.json();
-      console.log('🔍 Chat response:', data);
+      console.log('🔍 Full chat response:', data);
+      console.log('🔍 Response type:', typeof data);
+      console.log('🔍 Response keys:', Array.isArray(data) ? 'Array with length:' + data.length : Object.keys(data));
       
-      // Extract the response content - try multiple possible fields
+      // Extract the response content - try multiple possible fields and formats
       let responseContent = '';
-      if (data.answer) {
+      
+      // Strategy 1: Handle array format like [{"answer": "text"}] or [{"response": "text"}]
+      if (Array.isArray(data) && data.length > 0) {
+        const firstItem = data[0];
+        if (firstItem.answer) {
+          responseContent = firstItem.answer;
+          console.log('✅ Found answer in array format data[0].answer');
+        } else if (firstItem.response) {
+          responseContent = firstItem.response;
+          console.log('✅ Found response in array format data[0].response');
+        } else if (firstItem.text) {
+          responseContent = firstItem.text;
+          console.log('✅ Found text in array format data[0].text');
+        } else if (firstItem.message) {
+          responseContent = firstItem.message;
+          console.log('✅ Found message in array format data[0].message');
+        }
+      }
+      // Strategy 2: Direct field access
+      else if (data.answer) {
         responseContent = data.answer;
+        console.log('✅ Found answer in data.answer');
       } else if (data.response) {
         responseContent = data.response;
+        console.log('✅ Found response in data.response');
       } else if (data.text) {
         responseContent = data.text;
+        console.log('✅ Found text in data.text');
       } else if (data.message) {
         responseContent = data.message;
+        console.log('✅ Found message in data.message');
+      } else if (data.content) {
+        responseContent = data.content;
+        console.log('✅ Found content in data.content');
       } else if (typeof data === 'string') {
         responseContent = data;
-      } else {
-        responseContent = "I received your question and I'm processing it.";
+        console.log('✅ Response data is directly a string');
+      }
+      // Strategy 3: Try to find any string value in the response
+      else {
+        const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
+        if (stringValues.length > 0) {
+          responseContent = stringValues[0] as string;
+          console.log('✅ Found response in first long string value');
+        } else {
+          console.log('❌ No suitable response text found in webhook response');
+          responseContent = "I received your question but couldn't extract the response. Please try again.";
+        }
+      }
+      
+      console.log('📝 Final chat response content:', responseContent);
+      
+      if (!responseContent || responseContent.trim().length === 0) {
+        responseContent = "I received your question but the response was empty. Please try again.";
       }
       
       const aiResponse: ChatMessage = {
@@ -146,7 +192,29 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
                     ? 'bg-[#EEEEEE] text-[#666666] text-center' 
                     : 'bg-white text-[#333333]'
               }`}>
-                {message.content}
+                {message.isUser ? (
+                  message.content
+                ) : (
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown 
+                      components={{
+                        p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                        strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                        em: ({children}) => <em className="italic">{children}</em>,
+                        ul: ({children}) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                        ol: ({children}) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                        li: ({children}) => <li className="mb-1">{children}</li>,
+                        h1: ({children}) => <h1 className="text-base font-bold mb-2">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-sm font-semibold mb-2">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-sm font-medium mb-1">{children}</h3>,
+                        code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                        pre: ({children}) => <pre className="bg-gray-100 p-2 rounded text-sm overflow-x-auto">{children}</pre>,
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
               </div>
             </div>
           ))}

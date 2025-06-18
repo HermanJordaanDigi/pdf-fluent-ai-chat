@@ -1,5 +1,6 @@
 
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Loader2, Sparkles, Lightbulb } from 'lucide-react';
@@ -93,7 +94,23 @@ const TranslationResults = ({
           ) : summary ? (
             <div className="space-y-4">
               <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg p-4 max-h-48 overflow-y-auto">
-                <p className="text-[#333333] leading-relaxed">{summary}</p>
+                <div className="text-[#333333] leading-relaxed prose prose-sm max-w-none">
+                  <ReactMarkdown 
+                    components={{
+                      p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                      strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                      em: ({children}) => <em className="italic">{children}</em>,
+                      ul: ({children}) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                      li: ({children}) => <li className="mb-1">{children}</li>,
+                      h1: ({children}) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-sm font-medium mb-1">{children}</h3>,
+                    }}
+                  >
+                    {summary}
+                  </ReactMarkdown>
+                </div>
               </div>
               <Button 
                 onClick={handleSummaryClick}
@@ -146,7 +163,20 @@ const TranslationResults = ({
                 {insights.map((insight, index) => (
                   <li key={index} className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-[#888888] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[#333333] leading-relaxed">{insight}</p>
+                    <div className="text-[#333333] leading-relaxed prose prose-sm max-w-none flex-1">
+                      <ReactMarkdown 
+                        components={{
+                          p: ({children}) => <p className="mb-1 last:mb-0">{children}</p>,
+                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="italic">{children}</em>,
+                          ul: ({children}) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal pl-4 mb-1">{children}</ol>,
+                          li: ({children}) => <li className="mb-1">{children}</li>,
+                        }}
+                      >
+                        {insight}
+                      </ReactMarkdown>
+                    </div>
                   </li>
                 ))}
               </ul>
