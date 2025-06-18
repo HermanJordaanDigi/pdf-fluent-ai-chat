@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +15,7 @@ interface TranslationResultsProps {
   generateSummary: boolean;
   generateInsights: boolean;
   summary: string;
-  insights: string[];
+  insights: string; // Changed from string[] to string
   isProcessingSummary: boolean;
   isProcessingInsights: boolean;
   onDownload: () => void;
@@ -157,29 +156,27 @@ const TranslationResults = ({
                 ))}
               </div>
             </div>
-          ) : insights.length > 0 ? (
+          ) : insights ? (
             <div className="space-y-4">
-              <ul className="space-y-3">
-                {insights.map((insight, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-[#888888] rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="text-[#333333] leading-relaxed prose prose-sm max-w-none flex-1">
-                      <ReactMarkdown 
-                        components={{
-                          p: ({children}) => <p className="mb-1 last:mb-0">{children}</p>,
-                          strong: ({children}) => <strong className="font-semibold">{children}</strong>,
-                          em: ({children}) => <em className="italic">{children}</em>,
-                          ul: ({children}) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
-                          ol: ({children}) => <ol className="list-decimal pl-4 mb-1">{children}</ol>,
-                          li: ({children}) => <li className="mb-1">{children}</li>,
-                        }}
-                      >
-                        {insight}
-                      </ReactMarkdown>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+              <div className="bg-white/30 backdrop-blur-sm border border-white/30 rounded-lg p-4 max-h-96 overflow-y-auto">
+                <div className="text-[#333333] leading-relaxed prose prose-sm max-w-none">
+                  <ReactMarkdown 
+                    components={{
+                      p: ({children}) => <p className="mb-2 last:mb-0">{children}</p>,
+                      strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                      em: ({children}) => <em className="italic">{children}</em>,
+                      ul: ({children}) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                      li: ({children}) => <li className="mb-1">{children}</li>,
+                      h1: ({children}) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-base font-semibold mb-2">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-sm font-medium mb-1">{children}</h3>,
+                    }}
+                  >
+                    {insights}
+                  </ReactMarkdown>
+                </div>
+              </div>
               <Button 
                 onClick={handleInsightsClick}
                 className="bg-white/20 backdrop-blur-sm hover:bg-white/30 hover:text-[#333333] border border-white/40 text-[#333333]"

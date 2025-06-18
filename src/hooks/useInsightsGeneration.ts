@@ -8,7 +8,7 @@ export const useInsightsGeneration = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [insights, setInsights] = useState<string[]>([]);
+  const [insights, setInsights] = useState<string>(''); // Changed from string[] to string
   const [isProcessingInsights, setIsProcessingInsights] = useState(false);
 
   const handleGenerateInsights = async (translatedDoc: TranslatedDocument | null) => {
@@ -91,49 +91,17 @@ export const useInsightsGeneration = () => {
       
       console.log('📝 Raw insights text:', insightsText);
       
-      // Parse the markdown text to extract individual insights
-      let insightsArray: string[] = [];
-      
-      if (insightsText) {
-        // Look for numbered insights in the markdown
-        // Match patterns like "1. **Title**: content" or "1. **Title** - content"
-        const numberedInsights = insightsText.match(/\d+\.\s*\*\*[^*]+\*\*[:\-]?\s*[^0-9]+?(?=\d+\.\s*\*\*|$)/g);
-        
-        if (numberedInsights && numberedInsights.length > 0) {
-          insightsArray = numberedInsights.map(insight => insight.trim());
-          console.log('✅ Successfully parsed numbered insights:', insightsArray.length);
-        } else {
-          // Try alternative parsing - split by numbers followed by periods
-          const splitByNumbers = insightsText.split(/\d+\.\s+/).filter(part => part.trim().length > 20);
-          if (splitByNumbers.length > 1) {
-            insightsArray = splitByNumbers.map(insight => insight.trim());
-            console.log('✅ Successfully split by numbers:', insightsArray.length);
-          } else {
-            // Fallback: treat the entire text as one insight
-            insightsArray = [insightsText.trim()];
-            console.log('✅ Using entire text as single insight');
-          }
-        }
-      }
-      
-      console.log('📝 Final insights array:', insightsArray);
-      console.log('📝 Final insights count:', insightsArray.length);
-      
-      // Verify each insight and log them
-      insightsArray.forEach((insight, index) => {
-        console.log(`📝 Final insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 200) + (insight.length > 200 ? '...' : ''));
-      });
-      
-      if (insightsArray.length === 0) {
+      if (!insightsText || insightsText.trim().length === 0) {
         console.error('❌ No insights were extracted from the response');
-        insightsArray = ["No insights could be extracted from the response. Please try again."];
+        insightsText = "No insights could be extracted from the response. Please try again.";
       }
       
-      setInsights(insightsArray);
+      // Set the insights as a single markdown string
+      setInsights(insightsText.trim());
       
       toast({
         title: "Insights Generated",
-        description: `${insightsArray.length} key insights have been extracted.`
+        description: "Key insights have been extracted and are ready to view."
       });
     } catch (error) {
       console.error('❌ Insights generation error:', error);
@@ -148,7 +116,7 @@ export const useInsightsGeneration = () => {
   };
 
   const clearInsights = () => {
-    setInsights([]);
+    setInsights('');
   };
 
   return {
