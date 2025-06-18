@@ -74,9 +74,13 @@ export const useInsightsGeneration = () => {
           console.log('✅ Successfully parsed insights from array format:', insightsArray);
           console.log('✅ Number of insights extracted:', insightsArray.length);
           
-          // Log each insight to verify completeness
+          // Log each insight to verify completeness and check for truncation
           insightsArray.forEach((insight, index) => {
-            console.log(`✅ Insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 100) + (insight.length > 100 ? '...' : ''));
+            console.log(`✅ Insight ${index + 1} (${insight.length} chars):`, insight);
+            // Check if insight seems truncated (doesn't end with proper punctuation)
+            if (insight.length > 50 && !insight.match(/[.!?]$/)) {
+              console.warn(`⚠️ Insight ${index + 1} may be truncated - doesn't end with punctuation`);
+            }
           });
           
         } catch (parseError) {
@@ -133,19 +137,27 @@ export const useInsightsGeneration = () => {
         }
       }
       
-      // Clean up the insights array but preserve full content
+      // Clean up the insights array but preserve full content - minimal cleaning
       insightsArray = insightsArray
         .map(insight => insight.trim())
-        .filter(insight => insight.length > 0)
-        .map(insight => insight.replace(/^[-•*]\s*/, '')); // Remove bullet points but keep full content
+        .filter(insight => insight.length > 0);
       
       console.log('📝 Final insights array:', insightsArray);
       console.log('📝 Final insights count:', insightsArray.length);
       
-      // Verify each insight is complete
+      // Verify each insight is complete and log any potential issues
       insightsArray.forEach((insight, index) => {
-        console.log(`📝 Final insight ${index + 1} length:`, insight.length);
+        console.log(`📝 Final insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 100) + (insight.length > 100 ? '...' : ''));
+        if (insight.length < 20) {
+          console.warn(`⚠️ Insight ${index + 1} seems very short (${insight.length} chars)`);
+        }
       });
+      
+      // Ensure we have exactly the insights we extracted
+      if (insightsArray.length === 0) {
+        console.error('❌ No insights were extracted from the response');
+        insightsArray = ["No insights could be extracted from the response. Please try again."];
+      }
       
       // Set the insights array to state
       setInsights(insightsArray);
@@ -158,7 +170,7 @@ export const useInsightsGeneration = () => {
       console.error('❌ Insights generation error:', error);
       toast({
         title: "Insights Generation Failed",
-        description: `Unable to generate insights: ${error.message}`,
+        description: `Unable to generate insights: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     } finally {

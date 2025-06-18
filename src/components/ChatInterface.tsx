@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +52,7 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
       const arrayBuffer = await translatedDoc.blob.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/ask-questions', {
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf-translate-chat-V2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,9 +76,27 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
       }
 
       const data = await response.json();
+      console.log('🔍 Chat response:', data);
+      
+      // Extract the response content - try multiple possible fields
+      let responseContent = '';
+      if (data.answer) {
+        responseContent = data.answer;
+      } else if (data.response) {
+        responseContent = data.response;
+      } else if (data.text) {
+        responseContent = data.text;
+      } else if (data.message) {
+        responseContent = data.message;
+      } else if (typeof data === 'string') {
+        responseContent = data;
+      } else {
+        responseContent = "I received your question and I'm processing it.";
+      }
+      
       const aiResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: data.answer || data.response || data.text || "I received your question and I'm processing it.",
+        content: responseContent,
         isUser: false,
         timestamp: new Date()
       };
