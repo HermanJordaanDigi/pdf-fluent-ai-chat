@@ -78,17 +78,20 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
       }
 
       const data = await response.json();
-      console.log('🔍 Full chat response:', data);
+      console.log('🔍 Chat response:', data);
       console.log('🔍 Response type:', typeof data);
       console.log('🔍 Response keys:', Array.isArray(data) ? 'Array with length:' + data.length : Object.keys(data));
       
-      // Extract the response content - try multiple possible fields and formats
+      // Extract the response content - handle the "output" field format
       let responseContent = '';
       
-      // Strategy 1: Handle array format like [{"answer": "text"}] or [{"response": "text"}]
+      // Strategy 1: Handle array format like [{"output": "text"}]
       if (Array.isArray(data) && data.length > 0) {
         const firstItem = data[0];
-        if (firstItem.answer) {
+        if (firstItem.output) {
+          responseContent = firstItem.output;
+          console.log('✅ Found output in array format data[0].output');
+        } else if (firstItem.answer) {
           responseContent = firstItem.answer;
           console.log('✅ Found answer in array format data[0].answer');
         } else if (firstItem.response) {
@@ -103,7 +106,10 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
         }
       }
       // Strategy 2: Direct field access
-      else if (data.answer) {
+      else if (data.output) {
+        responseContent = data.output;
+        console.log('✅ Found output in data.output');
+      } else if (data.answer) {
         responseContent = data.answer;
         console.log('✅ Found answer in data.answer');
       } else if (data.response) {

@@ -52,114 +52,83 @@ export const useInsightsGeneration = () => {
       console.log('🔍 Response keys:', Array.isArray(data) ? 'Array with length:' + data.length : Object.keys(data));
       
       // Try multiple parsing strategies to extract insights
-      let insightsArray: string[] = [];
+      let insightsText = "";
       
-      // Strategy 1: Handle specific array format [{"insights": "{\"Insight1\":\"text\",\"Insight2\":\"text\"}"}]
+      // Strategy 1: Handle specific array format [{"insights": "markdown text"}]
       if (Array.isArray(data) && data.length > 0 && data[0].insights) {
-        try {
-          const insightsString = data[0].insights;
-          console.log('🔍 Found insights string:', insightsString);
-          console.log('🔍 Insights string type:', typeof insightsString);
-          
-          // Parse the JSON string inside the insights field
-          const insightsObject = JSON.parse(insightsString);
-          console.log('🔍 Parsed insights object:', insightsObject);
-          console.log('🔍 Insights object keys:', Object.keys(insightsObject));
-          
-          // Extract values from the insights object and ensure they're complete
-          insightsArray = Object.values(insightsObject)
-            .filter(value => typeof value === 'string' && value.trim().length > 0)
-            .map(value => (value as string).trim());
-          
-          console.log('✅ Successfully parsed insights from array format:', insightsArray);
-          console.log('✅ Number of insights extracted:', insightsArray.length);
-          
-          // Log each insight to verify completeness and check for truncation
-          insightsArray.forEach((insight, index) => {
-            console.log(`✅ Insight ${index + 1} (${insight.length} chars):`, insight);
-            // Check if insight seems truncated (doesn't end with proper punctuation)
-            if (insight.length > 50 && !insight.match(/[.!?]$/)) {
-              console.warn(`⚠️ Insight ${index + 1} may be truncated - doesn't end with punctuation`);
-            }
-          });
-          
-        } catch (parseError) {
-          console.log('❌ Error parsing insights JSON string:', parseError);
-          // Fall back to treating it as a regular string
-          insightsArray = [data[0].insights];
-        }
+        insightsText = data[0].insights;
+        console.log('✅ Found insights string in array format');
       }
-      // Strategy 2: Direct array field access
-      else if (data.insights && Array.isArray(data.insights)) {
-        insightsArray = data.insights;
-        console.log('✅ Found insights in data.insights array');
+      // Strategy 2: Direct field access
+      else if (data.insights && typeof data.insights === 'string') {
+        insightsText = data.insights;
+        console.log('✅ Found insights in data.insights');
       }
-      else if (data.key_points && Array.isArray(data.key_points)) {
-        insightsArray = data.key_points;
-        console.log('✅ Found insights in data.key_points array');
+      // Strategy 3: Other common field names
+      else if (data.text && typeof data.text === 'string') {
+        insightsText = data.text;
+        console.log('✅ Found insights in data.text');
       }
-      else if (data.points && Array.isArray(data.points)) {
-        insightsArray = data.points;
-        console.log('✅ Found insights in data.points array');
+      else if (data.result && typeof data.result === 'string') {
+        insightsText = data.result;
+        console.log('✅ Found insights in data.result');
       }
-      else if (data.result && Array.isArray(data.result)) {
-        insightsArray = data.result;
-        console.log('✅ Found insights in data.result array');
-      }
-      else if (data.content && Array.isArray(data.content)) {
-        insightsArray = data.content;
-        console.log('✅ Found insights in data.content array');
-      }
-      else if (Array.isArray(data)) {
-        insightsArray = data;
-        console.log('✅ Response data is directly an array');
+      else if (data.content && typeof data.content === 'string') {
+        insightsText = data.content;
+        console.log('✅ Found insights in data.content');
       }
       else if (typeof data === 'string') {
-        insightsArray = data.split('\n').filter(line => line.trim().length > 0);
-        console.log('✅ Converted string response to array by splitting lines');
-      }
-      else if (data.insights && typeof data.insights === 'string') {
-        insightsArray = data.insights.split('\n').filter(line => line.trim().length > 0);
-        console.log('✅ Converted string insights to array');
-      }
-      else if (data.key_points && typeof data.key_points === 'string') {
-        insightsArray = data.key_points.split('\n').filter(line => line.trim().length > 0);
-        console.log('✅ Converted string key_points to array');
+        insightsText = data;
+        console.log('✅ Response data is directly a string');
       }
       else {
         const stringValues = Object.values(data).filter(value => typeof value === 'string' && value.length > 10);
         if (stringValues.length > 0) {
-          insightsArray = (stringValues[0] as string).split('\n').filter(line => line.trim().length > 0);
-          console.log('✅ Found insights by parsing first long string value');
-        } else {
-          console.log('❌ No suitable insights found in response');
-          insightsArray = ["Insights received but could not extract content. Check console for details."];
+          insightsText = stringValues[0] as string;
+          console.log('✅ Found insights in first long string value');
         }
       }
       
-      // Clean up the insights array but preserve full content - minimal cleaning
-      insightsArray = insightsArray
-        .map(insight => insight.trim())
-        .filter(insight => insight.length > 0);
+      console.log('📝 Raw insights text:', insightsText);
+      
+      // Parse the markdown text to extract individual insights
+      let insightsArray: string[] = [];
+      
+      if (insightsText) {
+        // Look for numbered insights in the markdown
+        // Match patterns like "1. **Title**: content" or "1. **Title** - content"
+        const numberedInsights = insightsText.match(/\d+\.\s*\*\*[^*]+\*\*[:\-]?\s*[^0-9]+?(?=\d+\.\s*\*\*|$)/g);
+        
+        if (numberedInsights && numberedInsights.length > 0) {
+          insightsArray = numberedInsights.map(insight => insight.trim());
+          console.log('✅ Successfully parsed numbered insights:', insightsArray.length);
+        } else {
+          // Try alternative parsing - split by numbers followed by periods
+          const splitByNumbers = insightsText.split(/\d+\.\s+/).filter(part => part.trim().length > 20);
+          if (splitByNumbers.length > 1) {
+            insightsArray = splitByNumbers.map(insight => insight.trim());
+            console.log('✅ Successfully split by numbers:', insightsArray.length);
+          } else {
+            // Fallback: treat the entire text as one insight
+            insightsArray = [insightsText.trim()];
+            console.log('✅ Using entire text as single insight');
+          }
+        }
+      }
       
       console.log('📝 Final insights array:', insightsArray);
       console.log('📝 Final insights count:', insightsArray.length);
       
-      // Verify each insight is complete and log any potential issues
+      // Verify each insight and log them
       insightsArray.forEach((insight, index) => {
-        console.log(`📝 Final insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 100) + (insight.length > 100 ? '...' : ''));
-        if (insight.length < 20) {
-          console.warn(`⚠️ Insight ${index + 1} seems very short (${insight.length} chars)`);
-        }
+        console.log(`📝 Final insight ${index + 1} (${insight.length} chars):`, insight.substring(0, 200) + (insight.length > 200 ? '...' : ''));
       });
       
-      // Ensure we have exactly the insights we extracted
       if (insightsArray.length === 0) {
         console.error('❌ No insights were extracted from the response');
         insightsArray = ["No insights could be extracted from the response. Please try again."];
       }
       
-      // Set the insights array to state
       setInsights(insightsArray);
       
       toast({
