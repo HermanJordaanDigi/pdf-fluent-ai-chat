@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +40,7 @@ export const useFileUpload = () => {
     try {
       // Call the PDF translation webhook
       const formData = new FormData();
-      formData.append('pdf', file);
+      formData.append('PDF', file); // Fixed: Changed from 'pdf' to 'PDF' to match N8N expectation
       formData.append('user_id', user.id);
 
       console.log('Calling PDF translation webhook...');
