@@ -19,7 +19,7 @@ interface MainContentProps {
   setGenerateInsights: (value: boolean) => void;
   translatedDoc: TranslatedDocument | null;
   summary: string;
-  insights: string[];
+  insights: string; // Fixed: Changed from string[] to string
   isProcessingSummary: boolean;
   isProcessingInsights: boolean;
   isUploading: boolean;
