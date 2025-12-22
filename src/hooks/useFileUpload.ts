@@ -65,14 +65,11 @@ export const useFileUpload = () => {
       setTranslatedDoc(translatedDoc);
 
       // Save translation to database
-      await supabase.from('translations').insert({
+      await (supabase.from('translations') as any).insert({
         user_id: user.id,
-        original_filename: file.name,
-        translated_filename: translatedDoc.filename,
-        file_size: file.size,
-        status: 'completed',
-        summary: null,
-        insights: null
+        file_name: file.name,
+        target_language: 'English',
+        status: 'completed'
       });
 
       toast({
