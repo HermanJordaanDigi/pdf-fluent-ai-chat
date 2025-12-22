@@ -10,12 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface Translation {
   id: string;
-  original_filename: string;
-  translated_filename: string;
-  file_size: number;
-  status: string;
+  file_name: string;
+  original_language: string | null;
+  target_language: string | null;
+  status: string | null;
   summary: string | null;
-  insights: any;
+  insights: string | null;
   created_at: string;
 }
 
@@ -33,8 +33,8 @@ const UserDashboard = () => {
 
   const fetchTranslations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('translations')
+      const { data, error } = await (supabase
+        .from('translations') as any)
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -49,10 +49,6 @@ const UserDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
   const formatDate = (dateString: string) => {
@@ -98,14 +94,14 @@ const UserDashboard = () => {
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <h4 className="font-medium text-[#333333] mb-1">
-                      {translation.original_filename}
+                      {translation.file_name}
                     </h4>
                     <div className="flex items-center gap-4 text-sm text-[#555555]">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {formatDate(translation.created_at)}
                       </span>
-                      <span>{formatFileSize(translation.file_size)}</span>
+                      {translation.target_language && <span>{translation.target_language}</span>}
                       <Badge variant="secondary" className="bg-white/30 text-[#333333]">
                         {translation.status}
                       </Badge>

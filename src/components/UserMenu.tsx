@@ -35,10 +35,10 @@ const UserMenu = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('profiles')
+      const { data, error } = await (supabase
+        .from('profiles') as any)
         .select('full_name')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single();
       
       if (error) throw error;
