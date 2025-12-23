@@ -44,20 +44,10 @@ export const useFileUpload = () => {
       formData.append('user_id', user.id);
 
       console.log('Calling PDF translation webhook...');
-      
-      // Send to both webhooks in parallel
-      const [translationResponse] = await Promise.all([
-        fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf', {
-          method: 'POST',
-          body: formData,
-        }),
-        fetch('https://jordaandigi.app.n8n.cloud/webhook/pdf-upload', {
-          method: 'POST',
-          body: formData,
-        }).catch(err => console.log('Secondary webhook error (non-blocking):', err))
-      ]);
-      
-      const response = translationResponse;
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf', {
+        method: 'POST',
+        body: formData,
+      });
 
       if (!response.ok) {
         throw new Error(`Translation failed: ${response.statusText}`);
