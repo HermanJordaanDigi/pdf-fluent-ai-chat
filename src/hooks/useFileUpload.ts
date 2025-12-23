@@ -44,7 +44,7 @@ export const useFileUpload = () => {
       formData.append('user_id', user.id);
 
       console.log('Calling PDF translation webhook...');
-      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf', {
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook/pdf', {
         method: 'POST',
         body: formData,
       });
