@@ -54,7 +54,7 @@ const ChatInterface = ({ translatedDoc, chatMessages, setChatMessages, onBack }:
       const arrayBuffer = await translatedDoc.blob.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook-test/pdf-translate-chat-V2', {
+      const response = await fetch('https://jordaandigi.app.n8n.cloud/webhook/5effaeee-25b4-4947-a770-48043ee8d095/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
